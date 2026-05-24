@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Diet Plan"/>
+<title>Diet Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{background:#0a0a0f;color:#e0e0e0;font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:80px;}
+  button{font-family:'DM Sans',sans-serif;border:none;cursor:pointer;}
+  textarea{font-family:'DM Sans',sans-serif;}
+
+  #header{background:linear-gradient(135deg,#0d0d1a,#12122a);border-bottom:1px solid #1e1e3a;padding:20px 16px 16px;position:sticky;top:0;z-index:100;}
+  .header-inner{max-width:480px;margin:0 auto;}
+  .header-top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .header-title{font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+  .header-sub{font-size:11px;color:#4a4a8a;text-transform:uppercase;letter-spacing:3px;margin-bottom:4px;}
+  .header-meta{font-size:11px;color:#555;margin-top:2px;}
+  .rings{display:flex;gap:16px;padding-top:4px;}
+  #status-bar{margin-top:12px;padding:8px 14px;background:#0f0f20;border-radius:8px;font-size:12px;font-weight:600;display:flex;justify-content:space-between;align-items:center;border:1px solid #333;}
+  #status-right{color:#444;font-weight:400;}
+
+  #meals{max-width:480px;margin:0 auto;padding:12px 16px;}
+  .meal-card{margin-bottom:10px;border-radius:14px;overflow:hidden;border:1px solid #161625;background:#0c0c18;transition:border-color 0.2s;}
+  .meal-card.open{background:#0f0f1e;border-color:#2a2a4a;}
+  .meal-card.chosen{border-color:#2a3a5a;}
+  .meal-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+  .meal-icon{font-size:22px;margin-right:12px;}
+  .meal-label{font-size:15px;font-weight:700;color:#888;}
+  .meal-label.active{color:#e0e0ff;}
+  .meal-time{font-size:11px;color:#3a3a5a;margin-top:1px;}
+  .meal-macros{text-align:right;}
+  .meal-macros .prot{font-size:13px;color:#00e5a0;font-weight:700;}
+  .meal-macros .kcal{font-size:12px;color:#4f8fff;}
+  .meal-macros .custom-tag{font-size:10px;color:#6060a0;margin-right:4px;}
+  .meal-macros .not-set{font-size:11px;color:#333;}
+  .meal-arrow{font-size:14px;color:#333;margin-top:2px;}
+
+  .meal-options{padding:0 12px 14px;display:flex;flex-direction:column;gap:8px;}
+  .option{padding:12px 14px;border-radius:10px;background:#090916;border:1px solid #161630;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all 0.15s;}
+  .option.selected{background:#0e2240;border-color:#2a5a9a;}
+  .option-name{font-size:13px;font-weight:600;color:#bbb;}
+  .option.selected .option-name{color:#90c8ff;}
+  .option-tags{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;}
+  .option-tag{font-size:10px;background:#0f0f22;border:1px solid #1e1e35;border-radius:4px;padding:2px 6px;color:#555;}
+  .option-nums{text-align:right;min-width:70px;}
+  .option-prot{font-size:15px;font-weight:800;color:#00e5a0;font-family:'Bebas Neue',cursive;letter-spacing:0.5px;}
+  .option-kcal{font-size:11px;color:#4f8fff;margin-top:1px;}
+
+  .custom-btn{padding:11px 14px;border-radius:10px;background:#08080f;border:1px dashed #2a2a50;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+  .custom-btn.logged{background:#0e1a2e;border:1px solid #3a5a8a;}
+  .custom-btn-label{font-size:13px;font-weight:600;color:#4a4a80;}
+  .custom-btn.logged .custom-btn-label{color:#7090d0;}
+  .custom-btn-hint{font-size:11px;color:#2a2a50;margin-top:2px;}
+
+  .custom-form{padding:14px;border-radius:10px;background:#0a0a1a;border:1px solid #2a2a50;display:flex;flex-direction:column;gap:10px;}
+  .custom-form-title{font-size:12px;color:#6060a0;font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+  .custom-form textarea{background:#06060f;border:1px solid #1e1e35;border-radius:8px;color:#ccc;font-size:13px;padding:10px 12px;resize:none;min-height:70px;outline:none;line-height:1.6;width:100%;}
+  .custom-error{font-size:11px;color:#ff6060;padding:6px 10px;background:#1a0a0a;border-radius:6px;}
+  .custom-result{background:#060f14;border:1px solid #1a3a2a;border-radius:8px;padding:12px 14px;}
+  .custom-result-top{display:flex;justify-content:space-between;margin-bottom:10px;}
+  .custom-result-prot{font-size:20px;font-weight:800;color:#00e5a0;font-family:'Bebas Neue',cursive;}
+  .custom-result-kcal{font-size:20px;font-weight:800;color:#4f8fff;font-family:'Bebas Neue',cursive;}
+  .custom-result-unit{font-size:11px;color:#555;margin-left:4px;}
+  .breakdown-row{display:flex;justify-content:space-between;font-size:11px;color:#555;margin-top:3px;}
+  .breakdown-name{color:#444;}
+  .breakdown-nums{color:#336;}
+  .custom-btns{display:flex;gap:8px;}
+  .btn-analyse{flex:1;padding:10px;border-radius:8px;background:#0e1e3a;border:1px solid #2a5a9a;color:#4f8fff;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+  .btn-save{flex:1;padding:10px;border-radius:8px;background:#0e2a1e;border:1px solid #2a8a5a;color:#00e5a0;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+  .btn-cancel{padding:10px 16px;border-radius:8px;background:transparent;border:1px solid #1e1e30;color:#333;font-size:12px;}
+
+  .custom-tabs{display:flex;gap:6px;margin-bottom:10px;}
+  .custom-tab{flex:1;padding:8px;border-radius:8px;background:#0a0a18;border:1px solid #1e1e35;color:#444;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+  .custom-tab.active{background:#0e1e3a;border-color:#2a5a9a;color:#4f8fff;}
+  .manual-label{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px;margin-top:8px;}
+  .manual-input{width:100%;background:#06060f;border:1px solid #1e1e35;border-radius:8px;color:#ccc;font-size:13px;padding:10px 12px;outline:none;font-family:'DM Sans',sans-serif;}
+  .manual-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:2px;}
+  .manual-field{}
+
+  .skip-btn{padding:8px 14px;border-radius:8px;background:transparent;border:1px dashed #161630;cursor:pointer;text-align:center;font-size:11px;color:#2a2a40;}
+
+  #summary{margin-top:16px;padding:20px;border-radius:16px;background:linear-gradient(135deg,#0c0c20,#101030);border:1px solid #1e1e40;}
+  .summary-title{font-size:11px;letter-spacing:3px;color:#333;text-transform:uppercase;margin-bottom:16px;}
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .summary-cell{padding:14px;background:#090914;border-radius:10px;border:1px solid #161628;}
+  .summary-cell-label{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;}
+  .summary-cell-val{font-size:24px;font-weight:800;font-family:'Bebas Neue',cursive;letter-spacing:1px;}
+  .summary-cell-sub{font-size:10px;color:#333;margin-top:2px;}
+  #reset-btn{margin-top:16px;width:100%;padding:12px;background:transparent;border:1px solid #1e1e30;border-radius:10px;color:#444;font-size:12px;letter-spacing:2px;text-transform:uppercase;}
+
+  #reminders{margin-top:12px;padding:14px 16px;border-radius:12px;background:#080814;border:1px solid #161625;font-size:11px;color:#444;line-height:1.8;}
+  #reminders .rem-title{color:#333;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:1.5px;font-size:10px;}
+
+  /* Radial ring */
+  .ring-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .ring-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;}
+  .ring-val{font-size:17px;font-weight:800;font-family:'Bebas Neue',cursive;}
+  .ring-unit{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:1px;}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <div class="header-sub">Cut Phase</div>
+        <div class="header-title">Daily Diet Planner</div>
+        <div class="header-meta">82kg · 178cm · −400/500 cal deficit</div>
+      </div>
+      <div class="rings">
+        <div class="ring-wrap">
+          <svg width="70" height="70" id="ring-kcal" style="transform:rotate(-90deg)">
+            <circle cx="35" cy="35" r="29" fill="none" stroke="#1a1a2e" stroke-width="8"/>
+            <circle cx="35" cy="35" r="29" fill="none" stroke="#4f8fff" stroke-width="8" stroke-dasharray="0 182.2" stroke-linecap="round" id="arc-kcal" style="transition:stroke-dasharray 0.5s"/>
+          </svg>
+          <div style="margin-top:-43px;margin-bottom:35px;text-align:center;line-height:1.2">
+            <div class="ring-val" id="val-kcal" style="color:#4f8fff">0</div>
+            <div class="ring-unit">/ 2200</div>
+          </div>
+          <div class="ring-label">Kcal</div>
+        </div>
+        <div class="ring-wrap">
+          <svg width="70" height="70" style="transform:rotate(-90deg)">
+            <circle cx="35" cy="35" r="29" fill="none" stroke="#1a1a2e" stroke-width="8"/>
+            <circle cx="35" cy="35" r="29" fill="none" stroke="#00e5a0" stroke-width="8" stroke-dasharray="0 182.2" stroke-linecap="round" id="arc-prot" style="transition:stroke-dasharray 0.5s"/>
+          </svg>
+          <div style="margin-top:-43px;margin-bottom:35px;text-align:center;line-height:1.2">
+            <div class="ring-val" id="val-prot" style="color:#00e5a0">0</div>
+            <div class="ring-unit">/ 160g</div>
+          </div>
+          <div class="ring-label">Protein</div>
+        </div>
+      </div>
+    </div>
+    <div id="status-bar">
+      <span id="status-msg">Start selecting your meals</span>
+      <span id="status-right">0g · 0 kcal</span>
+    </div>
+  </div>
+</div>
+
+<div id="meals"></div>
+
+<script>
+const FOODS = {
+  whey:{name:"Whey Protein (1 scoop)",protein:20,calories:95},
+  milkCow250:{name:"Cow Milk (250ml)",protein:8,calories:120},
+  milkCow500:{name:"Cow Milk (500ml)",protein:16,calories:240},
+  milkCow750:{name:"Cow Milk (750ml)",protein:24,calories:360},
+  soychunks:{name:"Soy Chunks 100g (dry)",protein:52,calories:345},
+  paneerCow100:{name:"Cow Milk Paneer (100g)",protein:18,calories:230},
+  paneerCow150:{name:"Cow Milk Paneer (150g)",protein:27,calories:345},
+  oats80:{name:"Rolled Oats (80g)",protein:11,calories:300},
+  oats60:{name:"Rolled Oats (60g)",protein:8,calories:225},
+  eggs2whole:{name:"Boiled Eggs x2 (whole)",protein:12,calories:140},
+  eggs3whole:{name:"Boiled Eggs x3 (whole)",protein:18,calories:210},
+  eggswhites4:{name:"Egg Whites x4",protein:14,calories:68},
+  peanutbutter:{name:"Peanut Butter (1 tbsp)",protein:4,calories:94},
+  banana:{name:"Banana (1 medium)",protein:1,calories:89},
+  nuts:{name:"Almonds x5 + Walnut x1 + Pumpkin Seeds 1tbsp",protein:5,calories:90},
+  roti1:{name:"Roti x1",protein:3,calories:100},
+  roti2:{name:"Roti x2",protein:6,calories:200},
+  roti3:{name:"Roti x3",protein:9,calories:300},
+  dal:{name:"Dal (1 cup cooked)",protein:12,calories:180},
+  sabji:{name:"Sabji (1 cup)",protein:3,calories:120},
+  rajma:{name:"Rajma / Chhole (1 cup)",protein:15,calories:220},
+  rice150:{name:"Cooked Rice (150g)",protein:4,calories:195},
+};
+
+const MEALS = [
+  {id:"morning",label:"Morning",icon:"🌅",time:"7–9 AM",options:[
+    {name:"Oats + Milk + Whey",items:["oats80","milkCow250","whey"]},
+    {name:"Oats + Milk + Whey + Banana",items:["oats80","milkCow250","whey","banana"]},
+    {name:"Oats + Milk",items:["oats80","milkCow250"]},
+  ]},
+  {id:"midmorning",label:"Mid Morning",icon:"☀️",time:"10–11 AM",options:[
+    {name:"2 Boiled Eggs + PB",items:["eggs2whole","peanutbutter"]},
+    {name:"3 Boiled Eggs",items:["eggs3whole"]},
+    {name:"4 Egg Whites + PB",items:["eggswhites4","peanutbutter"]},
+    {name:"Whey Shake",items:["whey","milkCow250"]},
+  ]},
+  {id:"lunch",label:"Lunch",icon:"🍱",time:"1–2 PM",options:[
+    {name:"Soy Chunks + 2 Roti + Sabji",items:["soychunks","roti2","sabji"]},
+    {name:"Soy Chunks + Dal + 2 Roti",items:["soychunks","dal","roti2"]},
+    {name:"Paneer + Dal + 2 Roti",items:["paneerCow100","dal","roti2"]},
+    {name:"Paneer + Sabji + 3 Roti",items:["paneerCow150","sabji","roti3"]},
+    {name:"Rajma Rice",items:["rajma","rice150"]},
+  ]},
+  {id:"preworkout",label:"Pre Workout",icon:"💪",time:"4–5 PM",options:[
+    {name:"Whey + Banana",items:["whey","banana"]},
+    {name:"Whey + Milk",items:["whey","milkCow250"]},
+    {name:"Banana only",items:["banana"]},
+  ]},
+  {id:"postworkout",label:"Post Workout",icon:"🔥",time:"6–7 PM",options:[
+    {name:"Whey + Milk",items:["whey","milkCow250"]},
+    {name:"Whey in Water",items:["whey"]},
+    {name:"Whey + Milk + Banana",items:["whey","milkCow250","banana"]},
+  ]},
+  {id:"dinner",label:"Dinner",icon:"🌙",time:"8–9 PM",options:[
+    {name:"Paneer + Dal + 1 Roti",items:["paneerCow100","dal","roti1"]},
+    {name:"Paneer + Sabji + 2 Roti",items:["paneerCow150","sabji","roti2"]},
+    {name:"Soy Chunks + Sabji + 1 Roti",items:["soychunks","sabji","roti1"]},
+    {name:"Dal + 2 Roti",items:["dal","roti2"]},
+  ]},
+  {id:"beforebed",label:"Before Bed",icon:"🌛",time:"10–11 PM",options:[
+    {name:"Milk + Nuts",items:["milkCow250","nuts"]},
+    {name:"Paneer small + Nuts",items:["paneerCow100","nuts"]},
+    {name:"Milk only",items:["milkCow250"]},
+  ]},
+];
+
+const CALORIE_TARGET=2200, PROTEIN_TARGET=160, CALORIE_MIN=1900, MAINTENANCE=2650;
+const CIRC=2*Math.PI*29;
+
+// --- Nutrition parser ---
+const NUTRITION_DB=[
+
+  // ══ DAIRY & MILK PRODUCTS ══
+  // per 100ml/100g
+  {keys:["buffalo milk"],p:3.8,c:97,name:"Buffalo Milk"},
+  {keys:["cow milk","toned milk","full fat milk","doodh"],p:3.2,c:61,name:"Cow Milk"},
+  {keys:["double toned milk","double toned"],p:3.0,c:45,name:"Double Toned Milk"},
+  {keys:["skim milk","skimmed milk","fat free milk"],p:3.5,c:35,name:"Skimmed Milk"},
+  {keys:["condensed milk","milkmaid"],p:8.2,c:321,name:"Condensed Milk"},
+  {keys:["evaporated milk"],p:6.8,c:135,name:"Evaporated Milk"},
+  {keys:["curd","dahi","plain yogurt","yogurt","yoghurt"],p:3.1,c:60,name:"Curd/Dahi"},
+  {keys:["greek yogurt","greek curd","hung curd","chakka"],p:10,c:59,name:"Greek Yogurt/Hung Curd"},
+  {keys:["flavoured yogurt","fruit yogurt","flavored yogurt"],p:4,c:100,name:"Flavoured Yogurt"},
+  {keys:["paneer"],p:18.3,c:265,name:"Paneer"},
+  {keys:["paneer low fat","low fat paneer"],p:20,c:180,name:"Low Fat Paneer"},
+  {keys:["khoya","mawa","khoa"],p:14.6,c:421,name:"Khoya/Mawa"},
+  {keys:["cheese","processed cheese","cheeze"],p:24.9,c:398,name:"Processed Cheese"},
+  {keys:["cottage cheese"],p:11.1,c:98,name:"Cottage Cheese"},
+  {keys:["butter","makhan"],p:0.6,c:717,name:"Butter",unitG:10},
+  {keys:["ghee","clarified butter"],p:0.3,c:900,name:"Ghee",unitG:10},
+  {keys:["cream","fresh cream","malai"],p:2.1,c:210,name:"Fresh Cream/Malai"},
+  {keys:["lassi sweet","sweet lassi","meethi lassi"],p:3.5,c:90,name:"Sweet Lassi"},
+  {keys:["lassi namkeen","salted lassi","lassi"],p:3.2,c:50,name:"Lassi (Salted)"},
+  {keys:["chaas","buttermilk","mattha","chach"],p:3.0,c:40,name:"Chaas/Buttermilk"},
+  {keys:["milk tea","chai with milk","doodh wali chai","doodh chai"],p:1.8,c:45,name:"Milk Tea (1 cup)",unitG:150},
+  {keys:["tea","chai","plain tea"],p:0.3,c:2,name:"Plain Tea",unitG:150},
+  {keys:["coffee","black coffee","plain coffee"],p:0.3,c:5,name:"Black Coffee",unitG:150},
+  {keys:["coffee with milk","cafe latte","latte","cappuccino"],p:3.5,c:60,name:"Coffee with Milk",unitG:150},
+
+  // ══ EGGS ══
+  {keys:["whole egg","egg","anda"],p:13.3,c:173,name:"Whole Egg",unitG:55},
+  {keys:["boiled egg","hard boiled egg","ubla anda"],p:12.6,c:155,name:"Boiled Egg",unitG:55},
+  {keys:["egg white","egg whites","anda safed"],p:10.9,c:52,name:"Egg White",unitG:33},
+  {keys:["egg yolk","yolk","anda zardi"],p:16.4,c:322,name:"Egg Yolk",unitG:17},
+  {keys:["egg bhurji","anda bhurji","scrambled egg"],p:11.8,c:185,name:"Egg Bhurji",unitG:100},
+  {keys:["omelette","omelet","anda omelette"],p:12.0,c:190,name:"Omelette",unitG:100},
+  {keys:["egg curry","anda curry","anda masala","egg masala"],p:9.5,c:148,name:"Egg Curry",unitG:150},
+  {keys:["egg fried rice","anda fried rice"],p:6.8,c:160,name:"Egg Fried Rice",unitG:150},
+
+  // ══ PROTEIN SUPPLEMENTS ══
+  {keys:["whey protein","whey","scoop","protein powder"],p:80,c:380,name:"Whey Protein",unitG:30},
+  {keys:["casein protein","casein","micellar casein"],p:80,c:370,name:"Casein Protein",unitG:30},
+  {keys:["mass gainer","weight gainer"],p:30,c:380,name:"Mass Gainer",unitG:100},
+  {keys:["protein bar"],p:20,c:220,name:"Protein Bar",unitG:60},
+  {keys:["bcaa"],p:0,c:5,name:"BCAA",unitG:10},
+
+  // ══ LEGUMES & PULSES (cooked unless stated) ══
+  {keys:["soy chunk","soya chunk","soya nugget","soy nugget","textured soy","tvp"],p:52,c:345,name:"Soy Chunks (dry)"},
+  {keys:["soya granule","soy granule","soy mince","soya mince","soya keema"],p:14,c:130,name:"Soya Granules (cooked)"},
+  {keys:["moong dal whole","sabut moong","whole green moong","green moong"],p:7.6,c:104,name:"Whole Moong Dal (cooked)"},
+  {keys:["yellow moong dal","dhuli moong","moong dal","moong"],p:7.0,c:104,name:"Yellow Moong Dal (cooked)"},
+  {keys:["masoor dal","red lentil","masoor","pink lentil"],p:8.7,c:116,name:"Masoor Dal (cooked)"},
+  {keys:["toor dal","arhar dal","toor","arhar","pigeon pea"],p:6.8,c:112,name:"Toor Dal (cooked)"},
+  {keys:["urad dal whole","sabut urad","black gram whole"],p:8.9,c:105,name:"Whole Urad Dal (cooked)"},
+  {keys:["urad dal dhuli","urad dal","urad","white urad"],p:8.7,c:105,name:"Urad Dal (cooked)"},
+  {keys:["chana dal","bengal gram dal"],p:8.4,c:164,name:"Chana Dal (cooked)"},
+  {keys:["dal","daal","mixed dal","lentil","lentils"],p:8.0,c:116,name:"Dal (cooked)"},
+  {keys:["rajma","kidney bean","red kidney bean"],p:8.7,c:127,name:"Rajma (cooked)"},
+  {keys:["white rajma","white kidney bean"],p:8.5,c:124,name:"White Rajma (cooked)"},
+  {keys:["chhole","chole","kabuli chana","chickpea","garbanzo"],p:8.9,c:164,name:"Chhole/Chickpea (cooked)"},
+  {keys:["kala chana","black chickpea","black chana","desi chana"],p:9.0,c:164,name:"Kala Chana (cooked)"},
+  {keys:["lobiya","black eyed pea","cowpea","chawli"],p:7.8,c:116,name:"Lobiya (cooked)"},
+  {keys:["matki","moth bean","turkish gram"],p:8.0,c:104,name:"Matki/Moth Bean (cooked)"},
+  {keys:["val dal","field bean","valor"],p:7.5,c:118,name:"Val Dal (cooked)"},
+  {keys:["peas","matar","green peas","fresh peas","hara matar"],p:5.4,c:81,name:"Green Peas"},
+  {keys:["dried peas","yellow peas","vatana"],p:8.0,c:118,name:"Dried Peas (cooked)"},
+  {keys:["sprouts","sprouted moong","ankurit moong","moong sprout"],p:3.8,c:30,name:"Moong Sprouts"},
+  {keys:["chana sprout","sprouted chana","ankurit chana"],p:7.2,c:110,name:"Chana Sprouts"},
+  {keys:["tofu","soya tofu","bean curd"],p:8.1,c:76,name:"Tofu"},
+  {keys:["firm tofu","hard tofu"],p:10,c:80,name:"Firm Tofu"},
+  {keys:["edamame","soya bean","fresh soybean"],p:11.9,c:121,name:"Edamame/Soybean"},
+  {keys:["soya milk","soymilk","soy milk"],p:3.3,c:54,name:"Soya Milk"},
+  {keys:["tempeh"],p:19.9,c:193,name:"Tempeh"},
+
+  // ══ GRAINS & CEREALS ══
+  {keys:["rolled oats","oats","oatmeal","jaai"],p:13.5,c:375,name:"Rolled Oats (dry)"},
+  {keys:["cooked oats","oats cooked","oatmeal cooked"],p:2.5,c:71,name:"Cooked Oats"},
+  {keys:["roti","chapati","chapatti","phulka","fulka"],p:3.1,c:104,name:"Roti",unitG:35},
+  {keys:["whole wheat roti","atta roti","gehu roti"],p:3.5,c:108,name:"Whole Wheat Roti",unitG:35},
+  {keys:["multigrain roti","multigrain chapati"],p:4.0,c:100,name:"Multigrain Roti",unitG:35},
+  {keys:["bajra roti","bajre ki roti","millet roti"],p:3.2,c:105,name:"Bajra Roti",unitG:35},
+  {keys:["jowar roti","jowar bhakri","sorghum roti"],p:2.8,c:100,name:"Jowar Roti",unitG:40},
+  {keys:["makki roti","makki ki roti","corn roti"],p:2.5,c:108,name:"Makki Roti",unitG:40},
+  {keys:["paratha","parantha","plain paratha"],p:3.5,c:200,name:"Plain Paratha",unitG:80},
+  {keys:["aloo paratha","potato paratha","stuffed paratha"],p:4.2,c:220,name:"Aloo Paratha",unitG:100},
+  {keys:["gobi paratha","cauliflower paratha"],p:4.0,c:200,name:"Gobi Paratha",unitG:100},
+  {keys:["paneer paratha"],p:8.0,c:240,name:"Paneer Paratha",unitG:100},
+  {keys:["mooli paratha","radish paratha"],p:3.8,c:190,name:"Mooli Paratha",unitG:100},
+  {keys:["methi paratha","fenugreek paratha"],p:4.2,c:195,name:"Methi Paratha",unitG:100},
+  {keys:["puri","poori"],p:3.5,c:260,name:"Puri",unitG:35},
+  {keys:["bhatura","bhature"],p:5.0,c:310,name:"Bhatura",unitG:80},
+  {keys:["naan","tandoori naan"],p:4.2,c:260,name:"Naan",unitG:80},
+  {keys:["garlic naan","garlic bread naan"],p:4.5,c:275,name:"Garlic Naan",unitG:80},
+  {keys:["kulcha","amritsari kulcha"],p:4.0,c:240,name:"Kulcha",unitG:70},
+  {keys:["white rice","basmati rice","chawal","rice","steamed rice"],p:2.7,c:130,name:"Cooked White Rice"},
+  {keys:["brown rice","bhoora chawal"],p:2.9,c:123,name:"Cooked Brown Rice"},
+  {keys:["jeera rice","cumin rice"],p:2.8,c:145,name:"Jeera Rice"},
+  {keys:["fried rice","veg fried rice"],p:3.5,c:165,name:"Veg Fried Rice"},
+  {keys:["khichdi","khichri"],p:4.0,c:110,name:"Khichdi"},
+  {keys:["moong dal khichdi"],p:5.0,c:110,name:"Moong Dal Khichdi"},
+  {keys:["pulao","veg pulao","vegetable pulao"],p:3.0,c:150,name:"Veg Pulao"},
+  {keys:["poha","flattened rice","beaten rice","chivda"],p:2.6,c:130,name:"Poha"},
+  {keys:["upma","rava upma","suji upma"],p:3.0,c:130,name:"Upma"},
+  {keys:["semolina","suji","rava","sooji"],p:10.0,c:360,name:"Suji/Rava (dry)"},
+  {keys:["idli","idly"],p:2.4,c:58,name:"Idli",unitG:40},
+  {keys:["dosa","plain dosa","sada dosa"],p:2.5,c:133,name:"Dosa",unitG:70},
+  {keys:["masala dosa"],p:3.5,c:168,name:"Masala Dosa",unitG:120},
+  {keys:["rava dosa","suji dosa"],p:3.0,c:148,name:"Rava Dosa",unitG:80},
+  {keys:["uttapam","uthappam"],p:3.5,c:107,name:"Uttapam",unitG:80},
+  {keys:["medu vada","vada","medu wada","urad vada"],p:5.5,c:213,name:"Medu Vada",unitG:50},
+  {keys:["white bread","bread slice","bread"],p:8.1,c:265,name:"White Bread",unitG:25},
+  {keys:["brown bread","whole wheat bread","atta bread"],p:9.5,c:247,name:"Brown Bread",unitG:25},
+  {keys:["multigrain bread"],p:10,c:240,name:"Multigrain Bread",unitG:25},
+  {keys:["whole wheat flour","atta","gehu atta","gehu"],p:11.8,c:341,name:"Whole Wheat Flour (dry)"},
+  {keys:["maida","all purpose flour","refined flour","plain flour"],p:10.3,c:364,name:"Maida (dry)"},
+  {keys:["besan","gram flour","chickpea flour","chana flour"],p:22.5,c:387,name:"Besan (dry)"},
+  {keys:["corn flour","cornflour","maize flour","makka atta"],p:6.9,c:361,name:"Corn Flour"},
+  {keys:["rice flour","chawal atta","rice atta"],p:6.0,c:366,name:"Rice Flour"},
+  {keys:["quinoa cooked","quinoa"],p:4.4,c:120,name:"Cooked Quinoa"},
+  {keys:["corn flakes","cornflakes"],p:7.0,c:357,name:"Corn Flakes (dry)"},
+  {keys:["muesli","granola"],p:10.0,c:363,name:"Muesli/Granola"},
+  {keys:["wheat flakes","wheat bran flakes"],p:10,c:340,name:"Wheat Flakes"},
+  {keys:["bajra","pearl millet","bajre","bajra flour"],p:11.6,c:363,name:"Bajra (dry)"},
+  {keys:["jowar","sorghum","jowar flour"],p:10.4,c:349,name:"Jowar (dry)"},
+  {keys:["ragi","nachni","finger millet"],p:7.7,c:336,name:"Ragi (dry)"},
+  {keys:["makka","corn","maize","sweet corn","bhutta"],p:3.2,c:86,name:"Sweet Corn"},
+  {keys:["popcorn"],p:3.1,c:375,name:"Popcorn (plain)",unitG:20},
+  {keys:["sattu","chana sattu","roasted gram flour","sattu powder"],p:22.0,c:413,name:"Sattu"},
+  {keys:["roasted chana","bhuna chana","roasted gram","chana jor"],p:22.5,c:364,name:"Roasted Chana"},
+
+  // ══ VEGETABLES ══
+  {keys:["potato","aloo","aaloo"],p:2.0,c:87,name:"Potato"},
+  {keys:["sweet potato","shakarkand","yam"],p:1.6,c:86,name:"Sweet Potato"},
+  {keys:["spinach","palak"],p:2.9,c:23,name:"Palak/Spinach"},
+  {keys:["broccoli"],p:2.8,c:34,name:"Broccoli"},
+  {keys:["cauliflower","gobi","phool gobi","phoolgobi"],p:1.9,c:25,name:"Cauliflower"},
+  {keys:["cabbage","band gobi","patta gobi","bandgobi"],p:1.3,c:25,name:"Cabbage"},
+  {keys:["carrot","gajar"],p:0.9,c:41,name:"Carrot"},
+  {keys:["tomato","tamatar"],p:0.9,c:18,name:"Tomato"},
+  {keys:["onion","pyaz","pyaaz"],p:1.1,c:40,name:"Onion"},
+  {keys:["cucumber","kheera","kakdi"],p:0.7,c:16,name:"Cucumber"},
+  {keys:["capsicum","shimla mirch","bell pepper","green pepper"],p:1.0,c:31,name:"Capsicum"},
+  {keys:["bhindi","okra","lady finger","ladyfinger"],p:1.9,c:33,name:"Bhindi/Okra"},
+  {keys:["lauki","bottle gourd","ghiya","doodhi"],p:0.6,c:15,name:"Lauki/Bottle Gourd"},
+  {keys:["karela","bitter gourd","bitter melon"],p:1.0,c:17,name:"Karela/Bitter Gourd"},
+  {keys:["baingan","eggplant","brinjal","aubergine","baigan"],p:1.0,c:25,name:"Baingan/Brinjal"},
+  {keys:["mushroom","khumb","button mushroom"],p:3.1,c:22,name:"Mushroom"},
+  {keys:["beetroot","chukandar","beet"],p:1.6,c:43,name:"Beetroot"},
+  {keys:["radish","mooli","muli"],p:0.7,c:18,name:"Mooli/Radish"},
+  {keys:["turnip","shalgam"],p:0.9,c:28,name:"Shalgam/Turnip"},
+  {keys:["pumpkin","kaddu","kumhda"],p:1.0,c:26,name:"Kaddu/Pumpkin"},
+  {keys:["tinda","indian round gourd","tinde"],p:1.4,c:21,name:"Tinda"},
+  {keys:["parwal","pointed gourd","parval"],p:2.0,c:20,name:"Parwal"},
+  {keys:["drumstick","moringa","sahjan","sehjan"],p:2.5,c:37,name:"Drumstick/Moringa"},
+  {keys:["raw banana","kachha kela","green banana"],p:1.3,c:116,name:"Raw Banana"},
+  {keys:["raw papaya","kachha papita","green papaya"],p:0.5,c:32,name:"Raw Papaya"},
+  {keys:["jackfruit","kathal","raw jackfruit"],p:1.7,c:95,name:"Jackfruit"},
+  {keys:["lotus stem","kamal kakdi","bhein"],p:2.0,c:74,name:"Lotus Stem/Kamal Kakdi"},
+  {keys:["green beans","french beans","farasbi"],p:1.8,c:31,name:"French Beans"},
+  {keys:["cluster beans","gavar","gawar"],p:3.2,c:43,name:"Gavar/Cluster Beans"},
+  {keys:["ridge gourd","turai","torai"],p:0.5,c:17,name:"Turai/Ridge Gourd"},
+  {keys:["snake gourd","chichinda","padwal"],p:0.5,c:18,name:"Snake Gourd"},
+  {keys:["ivy gourd","tindora","kundru","kovakkai"],p:1.2,c:18,name:"Tindora/Ivy Gourd"},
+  {keys:["colocasia","arbi","taro","arvi"],p:1.8,c:97,name:"Arbi/Taro"},
+  {keys:["raw mango","kairi","aam papad","kacha aam"],p:0.7,c:44,name:"Raw Mango/Kairi"},
+  {keys:["fenugreek leaves","methi","methi saag","methi leaves"],p:4.4,c:49,name:"Methi/Fenugreek Leaves"},
+  {keys:["mustard leaves","sarson saag","sarson","saag"],p:3.0,c:34,name:"Sarson/Mustard Greens"},
+  {keys:["bathua","pigweed","bathua saag"],p:3.7,c:30,name:"Bathua Saag"},
+  {keys:["amaranth leaves","chaulai","rajgira saag"],p:4.0,c:23,name:"Chaulai/Amaranth Leaves"},
+  {keys:["curry leaves","kadi patta","meetha neem"],p:6.1,c:108,name:"Curry Leaves"},
+  {keys:["green chili","green chilli","hari mirch","chili","chilli","mirchi"],p:2.9,c:40,name:"Green Chili"},
+  {keys:["red chili","lal mirch","red chilli","dry red chili"],p:15.9,c:319,name:"Dry Red Chili"},
+  {keys:["garlic","lehsun","garlic clove","garlic cloves","lahsun"],p:6.4,c:149,name:"Garlic"},
+  {keys:["ginger","adrak","sonth"],p:2.3,c:80,name:"Ginger"},
+  {keys:["coriander leaves","dhania","cilantro","hara dhania"],p:3.3,c:23,name:"Coriander Leaves"},
+  {keys:["mint","pudina","mint leaves"],p:3.7,c:70,name:"Pudina/Mint"},
+  {keys:["lemon","nimbu","lime"],p:1.0,c:29,name:"Lemon/Nimbu",unitG:30},
+  {keys:["amla","gooseberry","indian gooseberry","awla"],p:0.9,c:44,name:"Amla"},
+
+  // ══ FRUITS ══
+  {keys:["banana","kela","ripe banana"],p:1.1,c:89,name:"Banana",unitG:120},
+  {keys:["apple","seb"],p:0.3,c:52,name:"Apple",unitG:150},
+  {keys:["mango","aam","ripe mango","alphonso"],p:0.8,c:60,name:"Mango",unitG:100},
+  {keys:["orange","santra","narangi","mousambi","mosambi"],p:0.9,c:47,name:"Orange/Mosambi",unitG:130},
+  {keys:["papaya","papita"],p:0.5,c:43,name:"Papaya",unitG:100},
+  {keys:["grapes","angur","angoor"],p:0.7,c:69,name:"Grapes",unitG:80},
+  {keys:["watermelon","tarbuz","tarbooz"],p:0.6,c:30,name:"Watermelon",unitG:200},
+  {keys:["strawberry","strawberries"],p:0.8,c:32,name:"Strawberry",unitG:100},
+  {keys:["guava","amrood"],p:2.6,c:68,name:"Guava",unitG:100},
+  {keys:["pomegranate","anar","anaar"],p:1.7,c:83,name:"Pomegranate",unitG:100},
+  {keys:["pineapple","ananas"],p:0.5,c:50,name:"Pineapple",unitG:100},
+  {keys:["chikoo","sapota","sapodilla","chiku"],p:0.7,c:98,name:"Chikoo/Sapota",unitG:80},
+  {keys:["litchi","lychee","lichi"],p:0.8,c:66,name:"Litchi",unitG:80},
+  {keys:["muskmelon","kharbooja","cantaloupe"],p:0.6,c:34,name:"Kharbooja/Muskmelon",unitG:150},
+  {keys:["pear","nashpati"],p:0.4,c:57,name:"Pear/Nashpati",unitG:150},
+  {keys:["plum","aloo bukhara","plums"],p:0.7,c:46,name:"Plum/Aloo Bukhara",unitG:80},
+  {keys:["peach","aaru","peaches"],p:0.9,c:39,name:"Peach",unitG:100},
+  {keys:["dates","khajur","medjool dates"],p:2.5,c:282,name:"Dates",unitG:24},
+  {keys:["fig","anjeer","figs"],p:0.8,c:74,name:"Anjeer/Fig",unitG:50},
+  {keys:["coconut","nariyal","fresh coconut"],p:3.3,c:354,name:"Fresh Coconut"},
+  {keys:["coconut water","nariyal pani","nariyal paani","coconut juice"],p:0.7,c:19,name:"Coconut Water",unitG:240},
+  {keys:["avocado"],p:2.0,c:160,name:"Avocado",unitG:100},
+  {keys:["kiwi","kiwifruit"],p:1.1,c:61,name:"Kiwi",unitG:70},
+  {keys:["dried mango","aam papad","dried fruit mango"],p:2.5,c:314,name:"Dried Mango"},
+  {keys:["raisin","kishmish","kismis"],p:3.1,c:299,name:"Kishmish/Raisin",unitG:15},
+
+  // ══ NUTS & SEEDS ══
+  {keys:["almond","badam","almonds"],p:21.2,c:579,name:"Almonds",unitG:6},
+  {keys:["walnut","akhrot","walnuts"],p:15.2,c:654,name:"Walnut",unitG:14},
+  {keys:["cashew","kaju","cashews"],p:18.2,c:553,name:"Cashews",unitG:10},
+  {keys:["pistachio","pista","pistachios"],p:20.6,c:562,name:"Pista/Pistachio",unitG:6},
+  {keys:["peanut","moongfali","groundnut","mungfali","peanuts"],p:25.8,c:567,name:"Peanuts"},
+  {keys:["peanut butter","peanut butter"],p:25.1,c:588,name:"Peanut Butter",unitG:16},
+  {keys:["sunflower seed","sunflower seeds"],p:20.8,c:584,name:"Sunflower Seeds"},
+  {keys:["pumpkin seed","kaddu beej","pepita","pumpkin seeds"],p:19.4,c:446,name:"Pumpkin Seeds"},
+  {keys:["chia seed","chia seeds","chia"],p:16.5,c:486,name:"Chia Seeds"},
+  {keys:["flaxseed","alsi","linseed","flax seed","flax"],p:18.3,c:534,name:"Alsi/Flaxseed"},
+  {keys:["sesame seed","til","sesame","til seeds"],p:17.7,c:573,name:"Til/Sesame Seeds"},
+  {keys:["hemp seed","hemp seeds"],p:31.6,c:553,name:"Hemp Seeds"},
+  {keys:["watermelon seed","magaz","melon seeds"],p:28.3,c:557,name:"Watermelon Seeds/Magaz"},
+  {keys:["pine nut","chilgoza","pine nuts"],p:13.7,c:673,name:"Chilgoza/Pine Nuts",unitG:10},
+  {keys:["fox nut","makhana","lotus seed","phool makhana"],p:9.7,c:347,name:"Makhana/Fox Nuts"},
+
+  // ══ OILS & FATS ══
+  {keys:["mustard oil","sarson oil","sarson ka tel"],p:0,c:884,name:"Mustard Oil",unitG:10},
+  {keys:["olive oil","jaitun oil"],p:0,c:884,name:"Olive Oil",unitG:10},
+  {keys:["coconut oil","nariyal oil","nariyal tel"],p:0,c:862,name:"Coconut Oil",unitG:10},
+  {keys:["sunflower oil","surajmukhi oil"],p:0,c:884,name:"Sunflower Oil",unitG:10},
+  {keys:["groundnut oil","peanut oil","moongfali oil","mungfali tel"],p:0,c:884,name:"Groundnut Oil",unitG:10},
+  {keys:["cooking oil","refined oil","vegetable oil","soybean oil"],p:0,c:884,name:"Cooking Oil",unitG:10},
+  {keys:["desi ghee","pure ghee"],p:0,c:900,name:"Desi Ghee",unitG:10},
+  {keys:["vanaspati","dalda","hydrogenated fat"],p:0,c:900,name:"Vanaspati",unitG:10},
+
+  // ══ SPICES (all per actual usage amount) ══
+  {keys:["turmeric","haldi","turmeric powder"],p:9.7,c:354,name:"Haldi/Turmeric",unitG:2},
+  {keys:["cumin","jeera","jeera powder","cumin seeds"],p:17.8,c:375,name:"Jeera/Cumin",unitG:2},
+  {keys:["coriander powder","dhania powder","dhaniya"],p:12.4,c:298,name:"Coriander Powder",unitG:2},
+  {keys:["garam masala"],p:12.5,c:379,name:"Garam Masala",unitG:3},
+  {keys:["red chili powder","lal mirch powder","chili powder"],p:12.0,c:282,name:"Red Chili Powder",unitG:2},
+  {keys:["kashmiri mirch","kashmiri chili","kashmiri red chili"],p:10.0,c:251,name:"Kashmiri Mirch",unitG:2},
+  {keys:["black pepper","kali mirch","pepper"],p:10.4,c:251,name:"Black Pepper",unitG:1},
+  {keys:["mustard seeds","rai","sarson dana"],p:26.1,c:508,name:"Mustard Seeds",unitG:2},
+  {keys:["fenugreek seed","methi dana","methi seeds"],p:23.0,c:333,name:"Methi Dana",unitG:2},
+  {keys:["asafoetida","hing","asafetida"],p:4.0,c:297,name:"Hing/Asafoetida",unitG:0.5},
+  {keys:["salt","namak"],p:0,c:0,name:"Salt",unitG:2},
+  {keys:["amchur","dry mango powder","amchoor"],p:2.0,c:322,name:"Amchur Powder",unitG:2},
+  {keys:["chaat masala"],p:6.0,c:290,name:"Chaat Masala",unitG:3},
+  {keys:["cardamom","elaichi","green cardamom"],p:10.8,c:311,name:"Elaichi/Cardamom",unitG:1},
+  {keys:["cloves","laung","clove"],p:6.0,c:274,name:"Laung/Cloves",unitG:1},
+  {keys:["cinnamon","dalchini"],p:4.0,c:247,name:"Dalchini/Cinnamon",unitG:2},
+  {keys:["bay leaf","tejpatta","tej patta"],p:7.6,c:313,name:"Tej Patta",unitG:1},
+
+  // ══ INDIAN DISHES ══
+  {keys:["dal makhani","dal makhni","dal bukhara"],p:6.9,c:140,name:"Dal Makhani"},
+  {keys:["dal tadka","tadka dal","yellow dal tadka"],p:7.5,c:100,name:"Dal Tadka"},
+  {keys:["dal fry","fried dal"],p:7.0,c:110,name:"Dal Fry"},
+  {keys:["palak paneer"],p:8.0,c:150,name:"Palak Paneer"},
+  {keys:["paneer bhurji"],p:13.5,c:210,name:"Paneer Bhurji"},
+  {keys:["paneer butter masala","butter paneer","paneer makhani"],p:9.5,c:188,name:"Paneer Butter Masala"},
+  {keys:["shahi paneer"],p:9.0,c:210,name:"Shahi Paneer"},
+  {keys:["kadai paneer"],p:10.0,c:185,name:"Kadai Paneer"},
+  {keys:["matar paneer","peas paneer"],p:9.0,c:150,name:"Matar Paneer"},
+  {keys:["paneer tikka"],p:18.0,c:200,name:"Paneer Tikka"},
+  {keys:["paneer do pyaza"],p:10.0,c:180,name:"Paneer Do Pyaza"},
+  {keys:["saag paneer","saag"],p:8.0,c:140,name:"Saag Paneer"},
+  {keys:["aloo gobi","aloo phool gobi"],p:2.5,c:110,name:"Aloo Gobi"},
+  {keys:["aloo matar","aloo peas"],p:3.0,c:120,name:"Aloo Matar"},
+  {keys:["aloo sabji","aloo sabzi","potato sabji","potato curry"],p:2.2,c:110,name:"Aloo Sabji"},
+  {keys:["baingan bharta","roasted brinjal"],p:2.0,c:70,name:"Baingan Bharta"},
+  {keys:["baingan sabji","brinjal sabji","baingan curry"],p:1.8,c:80,name:"Baingan Sabji"},
+  {keys:["bhindi masala","bhindi sabji","okra masala"],p:2.0,c:90,name:"Bhindi Masala"},
+  {keys:["palak sabji","spinach sabji","palak curry"],p:3.5,c:70,name:"Palak Sabji"},
+  {keys:["lauki sabji","lauki curry","bottle gourd sabji"],p:1.0,c:45,name:"Lauki Sabji"},
+  {keys:["karela sabji","karela masala","bitter gourd sabji"],p:2.0,c:70,name:"Karela Sabji"},
+  {keys:["mixed veg","mix veg","mixed vegetable curry","mix sabji"],p:2.5,c:90,name:"Mixed Veg Curry"},
+  {keys:["sambhar","sambar"],p:2.8,c:50,name:"Sambhar"},
+  {keys:["rasam","tamarind soup"],p:1.5,c:35,name:"Rasam"},
+  {keys:["rajma masala","rajma curry","rajma chawal"],p:8.0,c:130,name:"Rajma Masala"},
+  {keys:["chhole masala","chole masala","pindi chole","chana masala"],p:8.5,c:165,name:"Chhole Masala"},
+  {keys:["kadhi","kadhi pakora","besan kadhi"],p:3.0,c:80,name:"Kadhi"},
+  {keys:["kadhi pakora"],p:4.5,c:120,name:"Kadhi Pakora"},
+  {keys:["veg biryani","biryani","vegetable biryani"],p:4.5,c:165,name:"Veg Biryani"},
+  {keys:["moong dal chilla","chilla","cheela"],p:8.5,c:105,name:"Moong Dal Chilla",unitG:80},
+  {keys:["besan chilla","besan cheela","gram flour chilla"],p:10.0,c:130,name:"Besan Chilla",unitG:80},
+  {keys:["raita","vegetable raita","boondi raita"],p:2.8,c:50,name:"Raita"},
+  {keys:["kheer","rice kheer","chawal kheer"],p:4.0,c:150,name:"Kheer"},
+  {keys:["halwa","sooji halwa","atta halwa"],p:3.0,c:220,name:"Halwa"},
+  {keys:["pav bhaji"],p:4.5,c:170,name:"Pav Bhaji",unitG:150},
+  {keys:["vada pav"],p:5.0,c:290,name:"Vada Pav",unitG:100},
+  {keys:["samosa"],p:3.2,c:262,name:"Samosa",unitG:60},
+  {keys:["kachori"],p:4.5,c:350,name:"Kachori",unitG:60},
+  {keys:["pakora","bhajiya","fritter","onion pakora","veg pakora"],p:4.0,c:250,name:"Pakora/Bhajiya",unitG:50},
+  {keys:["mathri","namak pare","namakpara"],p:7.0,c:490,name:"Mathri/Namakpare",unitG:25},
+  {keys:["dhokla","besan dhokla"],p:5.0,c:160,name:"Dhokla",unitG:60},
+  {keys:["handvo"],p:6.0,c:180,name:"Handvo",unitG:70},
+  {keys:["thepla","methi thepla"],p:5.0,c:195,name:"Thepla",unitG:50},
+  {keys:["dal baati","baati"],p:8.0,c:290,name:"Dal Baati",unitG:80},
+  {keys:["litti chokha","litti"],p:7.0,c:250,name:"Litti Chokha",unitG:80},
+  {keys:["pongal","ven pongal"],p:4.0,c:148,name:"Pongal"},
+  {keys:["curd rice","thayir sadam","dahi chawal"],p:3.5,c:120,name:"Curd Rice"},
+  {keys:["tomato rice","tamatar chawal"],p:3.0,c:150,name:"Tomato Rice"},
+  {keys:["lemon rice","nimbu chawal"],p:2.8,c:148,name:"Lemon Rice"},
+  {keys:["tamarind rice","puliyodarai","imli chawal"],p:3.0,c:155,name:"Tamarind Rice"},
+  {keys:["coconut chutney","nariyal chutney"],p:2.0,c:165,name:"Coconut Chutney",unitG:30},
+  {keys:["green chutney","hari chutney","dhaniya chutney"],p:1.5,c:35,name:"Green Chutney",unitG:20},
+  {keys:["tomato chutney","tamatar chutney"],p:1.0,c:45,name:"Tomato Chutney",unitG:30},
+  {keys:["pickle","achar","mango pickle","achaar"],p:0.5,c:90,name:"Achar/Pickle",unitG:10},
+
+  // ══ SNACKS & FAST FOOD ══
+  {keys:["maggi","instant noodle","noodles","maggie"],p:7.0,c:360,name:"Maggi/Instant Noodles",unitG:80},
+  {keys:["pizza"],p:11.0,c:266,name:"Pizza",unitG:100},
+  {keys:["burger"],p:13.0,c:295,name:"Burger",unitG:150},
+  {keys:["bread roll"],p:5.0,c:268,name:"Bread Roll",unitG:30},
+  {keys:["biscuit","marie biscuit","glucose biscuit","cookie"],p:7.0,c:480,name:"Biscuit",unitG:10},
+  {keys:["namkeen","mixture","bhujia","sev"],p:8.0,c:500,name:"Namkeen/Sev",unitG:30},
+  {keys:["murmura","puffed rice","kurmura"],p:1.3,c:402,name:"Murmura/Puffed Rice",unitG:20},
+  {keys:["bhel puri","bhelpuri"],p:3.0,c:118,name:"Bhel Puri",unitG:100},
+  {keys:["pani puri","golgappa","puchka"],p:2.0,c:170,name:"Pani Puri",unitG:60},
+  {keys:["dahi puri","dahi puchka"],p:3.5,c:170,name:"Dahi Puri",unitG:80},
+  {keys:["sev puri","sevpuri"],p:2.8,c:180,name:"Sev Puri",unitG:80},
+  {keys:["chips","potato chips","wafer","crisps"],p:6.0,c:536,name:"Potato Chips",unitG:30},
+  {keys:["nachos","tortilla chips"],p:7.0,c:490,name:"Nachos",unitG:30},
+  {keys:["dark chocolate","chocolate","choco","cocoa"],p:5.0,c:546,name:"Dark Chocolate",unitG:20},
+  {keys:["milk chocolate"],p:4.5,c:535,name:"Milk Chocolate",unitG:20},
+  {keys:["ice cream","icecream"],p:3.5,c:207,name:"Ice Cream",unitG:80},
+  {keys:["gulab jamun","gulabjamun"],p:3.5,c:310,name:"Gulab Jamun",unitG:40},
+  {keys:["jalebi"],p:1.0,c:370,name:"Jalebi",unitG:50},
+  {keys:["ladoo","laddoo","besan ladoo"],p:5.0,c:420,name:"Ladoo",unitG:40},
+  {keys:["burfi","barfi","milk burfi"],p:7.0,c:380,name:"Burfi/Barfi",unitG:30},
+
+  // ══ BEVERAGES ══
+  {keys:["orange juice","nimbu pani","lemon water","shikanji","nimbu soda"],p:0.7,c:40,name:"Lemon Water/Juice",unitG:200},
+  {keys:["fruit juice","mixed juice","apple juice"],p:0.5,c:45,name:"Fruit Juice",unitG:200},
+  {keys:["protein shake","shake","mass shake"],p:25.0,c:150,name:"Protein Shake",unitG:300},
+  {keys:["aam panna","raw mango drink","raw mango juice"],p:0.5,c:45,name:"Aam Panna",unitG:200},
+  {keys:["jaljeera","jalzira"],p:0.5,c:20,name:"Jaljeera",unitG:200},
+  {keys:["thandai"],p:4.0,c:130,name:"Thandai",unitG:200},
+  {keys:["rose sharbat","rooh afza","sharbat"],p:0.2,c:100,name:"Sharbat",unitG:200},
+  {keys:["cold coffee","iced coffee"],p:4.0,c:90,name:"Cold Coffee",unitG:250},
+  {keys:["milkshake","milk shake","banana shake","mango shake"],p:4.5,c:110,name:"Milkshake",unitG:300},
+
+  // ══ CONDIMENTS & SWEETENERS ══
+  {keys:["honey","shahad","madhu"],p:0.3,c:304,name:"Honey",unitG:15},
+  {keys:["sugar","chini","white sugar","shakar"],p:0,c:387,name:"Sugar",unitG:10},
+  {keys:["brown sugar","raw sugar","khand"],p:0,c:377,name:"Brown Sugar",unitG:10},
+  {keys:["jaggery","gur","gud","gurr"],p:0.4,c:383,name:"Jaggery/Gur",unitG:10},
+  {keys:["ketchup","tomato ketchup","tomato sauce"],p:1.0,c:97,name:"Tomato Ketchup",unitG:15},
+  {keys:["mayonnaise","mayo"],p:1.0,c:680,name:"Mayonnaise",unitG:15},
+  {keys:["tamarind","imli","tamarind pulp"],p:2.8,c:239,name:"Imli/Tamarind",unitG:15},
+  {keys:["coconut milk","nariyal doodh"],p:2.3,c:230,name:"Coconut Milk"},
+  {keys:["tomato puree","tomato paste"],p:1.7,c:38,name:"Tomato Puree"},
+  {keys:["soy sauce","soya sauce"],p:1.3,c:53,name:"Soy Sauce",unitG:10},
+  {keys:["vinegar","sirka"],p:0,c:18,name:"Vinegar",unitG:15},
+
+  // ══ HIGH PROTEIN VEG SPECIALTIES ══
+  {keys:["seitan","wheat gluten","wheat meat"],p:25.0,c:120,name:"Seitan/Wheat Gluten"},
+  {keys:["spirulina","spirulina powder"],p:57.5,c:290,name:"Spirulina"},
+  {keys:["nutritional yeast","nooch"],p:50.0,c:325,name:"Nutritional Yeast"},
+  {keys:["hemp protein","hemp powder"],p:50.0,c:338,name:"Hemp Protein"},
+
+  // ══ BREAD & BAKERY ══
+  {keys:["pav","ladi pav","dinner roll"],p:4.5,c:260,name:"Pav/Dinner Roll",unitG:30},
+  {keys:["toast","bread toast"],p:9.0,c:312,name:"Toast",unitG:25},
+  {keys:["rusk","double roti"],p:9.5,c:408,name:"Rusk",unitG:15},
+  {keys:["croissant"],p:5.7,c:406,name:"Croissant",unitG:60},
+  {keys:["muffin","blueberry muffin"],p:5.0,c:377,name:"Muffin",unitG:80},
+  {keys:["cake","sponge cake"],p:5.0,c:347,name:"Cake",unitG:60},
+  {keys:["pancake","cheela pancake"],p:6.0,c:227,name:"Pancake",unitG:80},
+
+  // ══ BREAKFAST SPECIALS ══
+  {keys:["pesarattu","moong dosa","green moong dosa"],p:6.5,c:120,name:"Pesarattu",unitG:80},
+  {keys:["akki roti","rice roti","rice flour roti"],p:2.0,c:170,name:"Akki Roti",unitG:50},
+  {keys:["set dosa","soft dosa"],p:3.0,c:130,name:"Set Dosa",unitG:80},
+  {keys:["appam","rice appam"],p:2.3,c:116,name:"Appam",unitG:60},
+  {keys:["puttu"],p:3.0,c:147,name:"Puttu",unitG:70},
+  {keys:["parotta","malabar parotta","lachha paratha"],p:4.5,c:330,name:"Parotta/Lachha Paratha",unitG:80},
+  {keys:["puri bhaji","puri sabji"],p:4.0,c:280,name:"Puri Bhaji",unitG:150},
+  {keys:["aloo puri"],p:4.5,c:300,name:"Aloo Puri",unitG:150},
+  {keys:["sabudana khichdi","sabudana","tapioca"],p:2.0,c:168,name:"Sabudana Khichdi",unitG:100},
+  {keys:["vermicelli","seviyan","sevai"],p:4.5,c:356,name:"Seviyan/Vermicelli",unitG:50},
+  {keys:["vermicelli kheer","seviyan kheer"],p:4.0,c:160,name:"Seviyan Kheer",unitG:100},
+
+  // ══ RICE DISHES ══
+  {keys:["curd rice","dahi chawal","thayir sadam"],p:3.5,c:125,name:"Curd Rice"},
+  {keys:["coconut rice","nariyal chawal"],p:2.5,c:175,name:"Coconut Rice"},
+  {keys:["bisi bele bath","bisibelebath"],p:4.0,c:120,name:"Bisi Bele Bath"},
+  {keys:["chitranna","lemon rice south"],p:2.8,c:148,name:"Chitranna/Lemon Rice"},
+  {keys:["peas pulao","matar pulao"],p:3.5,c:145,name:"Matar Pulao"},
+  {keys:["mushroom pulao"],p:3.8,c:145,name:"Mushroom Pulao"},
+  {keys:["paneer pulao"],p:6.0,c:175,name:"Paneer Pulao"},
+  {keys:["soya biryani","soy biryani"],p:10.0,c:180,name:"Soya Biryani"},
+
+  // ══ CURRY & GRAVY DISHES ══
+  {keys:["aloo palak","potato spinach"],p:2.5,c:95,name:"Aloo Palak"},
+  {keys:["aloo methi"],p:2.2,c:115,name:"Aloo Methi"},
+  {keys:["aloo capsicum","aloo shimla mirch"],p:2.0,c:100,name:"Aloo Capsicum"},
+  {keys:["dum aloo","dum aaloo"],p:2.5,c:150,name:"Dum Aloo"},
+  {keys:["jeera aloo","zeera aloo"],p:2.0,c:110,name:"Jeera Aloo"},
+  {keys:["sev tamatar","sev tomato"],p:3.0,c:120,name:"Sev Tamatar"},
+  {keys:["undhiyu","surti undhiyo"],p:4.5,c:150,name:"Undhiyu"},
+  {keys:["pav bhaji masala"],p:2.0,c:35,name:"Pav Bhaji Masala",unitG:5},
+  {keys:["gobi masala","cauliflower masala"],p:2.5,c:100,name:"Gobi Masala"},
+  {keys:["tinda masala"],p:1.8,c:75,name:"Tinda Masala"},
+  {keys:["parwal sabji"],p:2.5,c:75,name:"Parwal Sabji"},
+  {keys:["soya chaap","soy chaap"],p:16.0,c:180,name:"Soya Chaap"},
+  {keys:["soya curry","soy curry"],p:12.0,c:145,name:"Soya Curry"},
+  {keys:["mushroom masala","mushroom curry"],p:4.5,c:110,name:"Mushroom Masala"},
+  {keys:["mushroom matar"],p:5.0,c:120,name:"Mushroom Matar"},
+  {keys:["tofu curry","tofu masala"],p:9.0,c:130,name:"Tofu Curry"},
+  {keys:["palak tofu"],p:9.5,c:125,name:"Palak Tofu"},
+  {keys:["malai kofta"],p:6.5,c:245,name:"Malai Kofta",unitG:80},
+  {keys:["navratan korma"],p:5.0,c:195,name:"Navratan Korma"},
+  {keys:["veg kolhapuri"],p:3.5,c:140,name:"Veg Kolhapuri"},
+  {keys:["punjabi kadhi"],p:4.0,c:90,name:"Punjabi Kadhi"},
+
+  // ══ SOUP & BROTH ══
+  {keys:["tomato soup","tamatar soup"],p:1.2,c:40,name:"Tomato Soup",unitG:200},
+  {keys:["spinach soup","palak soup"],p:2.5,c:45,name:"Palak Soup",unitG:200},
+  {keys:["dal soup","lentil soup"],p:5.0,c:65,name:"Dal Soup",unitG:200},
+  {keys:["sweet corn soup","corn soup"],p:2.0,c:60,name:"Sweet Corn Soup",unitG:200},
+  {keys:["hot sour soup","hot and sour soup"],p:2.5,c:55,name:"Hot & Sour Soup",unitG:200},
+  {keys:["veg clear soup","clear soup","manchow soup"],p:1.5,c:35,name:"Clear Soup",unitG:200},
+  {keys:["mulligatawny soup"],p:3.0,c:70,name:"Mulligatawny Soup",unitG:200},
+  {keys:["shorba","shorbaa"],p:2.0,c:50,name:"Shorba",unitG:200},
+
+  // ══ INDO-CHINESE ══
+  {keys:["hakka noodles","veg hakka noodles"],p:4.5,c:165,name:"Veg Hakka Noodles"},
+  {keys:["chow mein","veg chow mein","chowmein"],p:5.0,c:168,name:"Veg Chow Mein"},
+  {keys:["veg manchurian","manchurian"],p:3.5,c:145,name:"Veg Manchurian",unitG:100},
+  {keys:["gobi manchurian","cauliflower manchurian"],p:3.8,c:165,name:"Gobi Manchurian",unitG:100},
+  {keys:["paneer manchurian"],p:9.0,c:190,name:"Paneer Manchurian",unitG:100},
+  {keys:["veg spring roll","spring roll"],p:3.0,c:230,name:"Veg Spring Roll",unitG:60},
+  {keys:["veg fried rice","chinese fried rice"],p:3.5,c:165,name:"Veg Fried Rice"},
+  {keys:["chili paneer","chilli paneer"],p:12.0,c:210,name:"Chilli Paneer",unitG:100},
+  {keys:["chili tofu","chilli tofu"],p:9.5,c:175,name:"Chilli Tofu",unitG:100},
+
+  // ══ STREET FOOD ══
+  {keys:["dabeli","kutchi dabeli"],p:4.0,c:280,name:"Dabeli",unitG:80},
+  {keys:["misal pav"],p:7.0,c:290,name:"Misal Pav",unitG:150},
+  {keys:["thalipeeth"],p:5.5,c:220,name:"Thalipeeth",unitG:80},
+  {keys:["aloo tikki","potato tikki"],p:3.0,c:190,name:"Aloo Tikki",unitG:80},
+  {keys:["ragda pattice","ragda patties"],p:5.0,c:220,name:"Ragda Pattice",unitG:150},
+  {keys:["dahi vada","dahi bhalla"],p:5.5,c:175,name:"Dahi Vada",unitG:80},
+  {keys:["papdi chaat","papri chaat"],p:3.5,c:195,name:"Papdi Chaat",unitG:100},
+  {keys:["dahi papdi chaat","dahi chaat"],p:4.0,c:190,name:"Dahi Papdi Chaat",unitG:100},
+  {keys:["aloo chaat"],p:2.5,c:165,name:"Aloo Chaat",unitG:100},
+  {keys:["corn chaat"],p:3.5,c:120,name:"Corn Chaat",unitG:100},
+  {keys:["momos","dim sum","veg momos","veg dim sum"],p:5.0,c:145,name:"Veg Momos",unitG:100},
+  {keys:["paneer momos"],p:10.0,c:190,name:"Paneer Momos",unitG:100},
+  {keys:["frankies","veg frankie","kathi roll"],p:6.0,c:260,name:"Veg Frankie/Kathi Roll",unitG:120},
+  {keys:["paneer roll","paneer kathi roll"],p:12.0,c:310,name:"Paneer Kathi Roll",unitG:120},
+  {keys:["egg roll","anda roll"],p:10.0,c:290,name:"Egg Roll",unitG:120},
+
+  // ══ SWEETS & DESSERTS ══
+  {keys:["rasgulla","rosogolla"],p:3.0,c:186,name:"Rasgulla",unitG:50},
+  {keys:["rasmalai"],p:5.5,c:185,name:"Rasmalai",unitG:80},
+  {keys:["sandesh"],p:7.0,c:240,name:"Sandesh",unitG:40},
+  {keys:["peda","milk peda"],p:7.5,c:410,name:"Peda",unitG:30},
+  {keys:["gajar halwa","carrot halwa","gajar ka halwa"],p:4.0,c:200,name:"Gajar Halwa",unitG:100},
+  {keys:["suji halwa","sooji halwa","rava halwa"],p:3.5,c:230,name:"Suji Halwa",unitG:100},
+  {keys:["moong dal halwa"],p:6.5,c:360,name:"Moong Dal Halwa",unitG:80},
+  {keys:["rabri","rabdi"],p:7.0,c:225,name:"Rabri/Rabdi",unitG:100},
+  {keys:["shrikhand"],p:7.5,c:195,name:"Shrikhand",unitG:100},
+  {keys:["payasam","kheer payasam"],p:4.5,c:155,name:"Payasam",unitG:100},
+  {keys:["mysore pak"],p:5.0,c:505,name:"Mysore Pak",unitG:40},
+  {keys:["chikki","peanut chikki","til chikki"],p:10.0,c:480,name:"Chikki",unitG:30},
+  {keys:["pinni","punjabi pinni"],p:8.5,c:490,name:"Punjabi Pinni",unitG:40},
+  {keys:["imarti"],p:2.0,c:400,name:"Imarti",unitG:50},
+
+  // ══ PROTEIN-RICH COMBOS (common Indian meals) ══
+  {keys:["rajma chawal","rajma rice"],p:10.5,c:290,name:"Rajma Chawal (full plate)"},
+  {keys:["dal chawal","dal rice"],p:9.0,c:250,name:"Dal Chawal (full plate)"},
+  {keys:["chhole chawal","chhole rice","chole rice"],p:10.5,c:310,name:"Chhole Chawal (full plate)"},
+  {keys:["paneer sabji roti","paneer roti"],p:14.0,c:380,name:"Paneer Sabji + 2 Roti"},
+  {keys:["dal roti","dal chapati"],p:10.0,c:270,name:"Dal + 2 Roti"},
+  {keys:["dahi roti","curd roti"],p:7.5,c:225,name:"Dahi + 2 Roti"},
+  {keys:["thali","veg thali","full thali"],p:18.0,c:650,name:"Veg Thali (full)"},
+  {keys:["south indian thali","south thali"],p:15.0,c:580,name:"South Indian Thali"},
+
+
+  // ══ DIPS, SPREADS & SAUCES ══
+  {keys:["hummus"],p:7.9,c:177,name:"Hummus"},
+  {keys:["tahini","sesame paste"],p:17.0,c:595,name:"Tahini",unitG:15},
+  {keys:["almond butter"],p:21.0,c:614,name:"Almond Butter",unitG:16},
+  {keys:["jam","fruit jam","mixed fruit jam"],p:0.4,c:250,name:"Jam",unitG:15},
+  {keys:["marmalade"],p:0.3,c:245,name:"Marmalade",unitG:15},
+  {keys:["cheese spread","laughing cow"],p:8.0,c:240,name:"Cheese Spread",unitG:20},
+
+  // ══ PROTEIN-RICH INDIAN FLOURS ══
+  {keys:["soy flour","soya flour","soybean flour"],p:36.0,c:372,name:"Soy Flour"},
+  {keys:["pea flour","matar flour"],p:21.7,c:357,name:"Pea Flour"},
+  {keys:["amaranth flour","rajgira atta"],p:13.6,c:371,name:"Rajgira/Amaranth Flour"},
+  {keys:["buckwheat","kuttu","kuttu atta"],p:13.3,c:343,name:"Kuttu/Buckwheat"},
+  {keys:["water chestnut flour","singhara atta","singhara"],p:4.0,c:346,name:"Singhara Atta"},
+
+  // ══ FERMENTED & PICKLED ══
+  {keys:["idli batter","dosa batter"],p:3.5,c:75,name:"Idli/Dosa Batter"},
+  {keys:["kanji","beetroot kanji"],p:1.0,c:30,name:"Kanji",unitG:200},
+  {keys:["kombucha"],p:0.0,c:13,name:"Kombucha",unitG:250},
+
+  // ══ POWDERS & SUPERFOODS ══
+  {keys:["protein oats","protein rolled oats"],p:15.0,c:370,name:"Protein Oats (dry)"},
+  {keys:["moringa powder","sahjan powder"],p:27.1,c:205,name:"Moringa Powder",unitG:5},
+  {keys:["ashwagandha","ashwagandha powder"],p:4.0,c:245,name:"Ashwagandha Powder",unitG:5},
+  {keys:["wheat germ","gehun ka jeeva"],p:23.2,c:360,name:"Wheat Germ"},
+  {keys:["oat bran","oats bran"],p:17.3,c:246,name:"Oat Bran"},
+  {keys:["psyllium husk","isabgol"],p:2.5,c:216,name:"Isabgol/Psyllium Husk",unitG:5},
+  {keys:["cocoa powder","cacao powder","unsweetened cocoa"],p:19.6,c:228,name:"Cocoa Powder",unitG:10},
+
+  // ══ POPULAR PACKAGED FOODS ══
+  {keys:["amul butter"],p:0.6,c:717,name:"Amul Butter",unitG:10},
+  {keys:["amul cheese"],p:24.0,c:398,name:"Amul Cheese",unitG:20},
+  {keys:["britannia milk bikis","milk bikis"],p:7.0,c:473,name:"Milk Bikis",unitG:10},
+  {keys:["marie gold","marie biscuit"],p:7.5,c:450,name:"Marie Gold Biscuit",unitG:8},
+  {keys:["hide and seek","hide & seek"],p:6.5,c:490,name:"Hide & Seek Biscuit",unitG:10},
+  {keys:["muesli bar","nature valley","granola bar"],p:4.5,c:380,name:"Muesli/Granola Bar",unitG:35},
+  {keys:["roasted makhana","foxnut roasted"],p:9.7,c:347,name:"Roasted Makhana",unitG:20},
+  {keys:["chana jor garam","roasted spiced chana"],p:20.0,c:350,name:"Chana Jor Garam",unitG:30},
+
+  // ══ JUICES & HEALTH DRINKS ══
+  {keys:["aloe vera juice","aloe juice"],p:0.1,c:8,name:"Aloe Vera Juice",unitG:200},
+  {keys:["amla juice","gooseberry juice"],p:0.5,c:25,name:"Amla Juice",unitG:100},
+  {keys:["wheatgrass juice","wheat grass"],p:1.0,c:21,name:"Wheatgrass Juice",unitG:30},
+  {keys:["ginger lemon water","ginger water","adrak pani"],p:0.2,c:10,name:"Ginger Lemon Water",unitG:200},
+  {keys:["turmeric milk","haldi milk","golden milk","haldi doodh"],p:3.5,c:75,name:"Haldi Doodh",unitG:200},
+  {keys:["dry fruit milk","dry fruit shake","badam milk"],p:5.5,c:130,name:"Dry Fruit Milk",unitG:250},
+  {keys:["bournvita","horlicks","complan","health drink mix"],p:8.0,c:380,name:"Bournvita/Horlicks",unitG:20},
+
+  // ══ MISC INDIAN ITEMS ══
+  {keys:["murabba","amla murabba","carrot murabba"],p:0.5,c:265,name:"Murabba",unitG:40},
+  {keys:["chyawanprash"],p:3.0,c:270,name:"Chyawanprash",unitG:10},
+  {keys:["til ladoo","sesame ladoo","til ke ladoo"],p:12.0,c:460,name:"Til Ladoo",unitG:30},
+  {keys:["revri","rewri"],p:5.0,c:430,name:"Revri/Rewri",unitG:20},
+  {keys:["gajak"],p:10.0,c:470,name:"Gajak",unitG:25},
+  {keys:["boondi","plain boondi"],p:7.5,c:430,name:"Plain Boondi",unitG:20},
+  {keys:["moong dal namkeen","moong dal fry","fried moong dal"],p:24.0,c:543,name:"Moong Dal Namkeen",unitG:30},
+  {keys:["fried peanuts","masala peanuts","salted peanuts"],p:26.0,c:585,name:"Masala Peanuts",unitG:30},
+  {keys:["roasted almonds","salted almonds"],p:21.0,c:579,name:"Roasted Almonds",unitG:6},
+  {keys:["mixed nuts","dry fruit mix","trail mix"],p:15.0,c:560,name:"Mixed Nuts",unitG:30},
+  {keys:["anjeer milk","fig milk"],p:4.5,c:120,name:"Anjeer Milk",unitG:250},
+  {keys:["atta laddoo","whole wheat ladoo"],p:7.5,c:430,name:"Atta Ladoo",unitG:40},
+  {keys:["mathura peda"],p:8.0,c:420,name:"Mathura Peda",unitG:30},
+  {keys:["soan papdi","son papdi"],p:5.5,c:465,name:"Soan Papdi",unitG:30},
+  {keys:["balushahi"],p:4.5,c:490,name:"Balushahi",unitG:40},
+  {keys:["imarti","amriti"],p:2.0,c:395,name:"Imarti",unitG:50},
+  {keys:["thanda","cold drink","coca cola","pepsi","soda"],p:0,c:42,name:"Cold Drink/Soda",unitG:300},
+  {keys:["energy drink","red bull"],p:0.7,c:45,name:"Energy Drink",unitG:250},
+  {keys:["electrolyte water","ors","electral"],p:0,c:15,name:"ORS/Electrolyte Water",unitG:200},
+
+  // ══ COOKING BASES (per tbsp/common usage) ══
+  {keys:["tomato onion gravy","onion tomato masala","base gravy"],p:1.5,c:65,name:"Onion Tomato Base",unitG:50},
+  {keys:["cashew gravy","cashew paste"],p:5.0,c:180,name:"Cashew Paste/Gravy",unitG:30},
+  {keys:["coconut gravy","nariyal gravy"],p:2.0,c:160,name:"Coconut Gravy",unitG:50},
+
+];
+const NUM_WORDS={one:1,two:2,three:3,four:4,five:5,six:6,half:0.5,a:1,an:1};
+
+function extractQty(text,idx){
+  const before=text.slice(Math.max(0,idx-35),idx);
+  const after=text.slice(idx,idx+40);
+  let m;
+  m=before.match(/(\d+\.?\d*)\s*(g|ml|l|kg|scoop|cup|tbsp|tsp|glass|bowl)s?\s*$/i);
+  if(m) return{qty:parseFloat(m[1]),unit:m[2].toLowerCase()};
+  m=before.match(/\b(one|two|three|four|five|six|half|an?)\s+(scoop|cup|tbsp|glass|bowl)?\s*$/i);
+  if(m) return{qty:NUM_WORDS[m[1].toLowerCase()]||1,unit:m[2]?m[2].toLowerCase():"count"};
+  m=before.match(/(\d+\.?\d*)\s*$/);
+  if(m) return{qty:parseFloat(m[1]),unit:"count"};
+  m=after.match(/^[a-z\s]*x?\s*(\d+)/i);
+  if(m) return{qty:parseFloat(m[1]),unit:"count"};
+  return{qty:1,unit:"count"};
+}
+function unitToGrams(qty,unit,food){
+  const u=(unit||"").toLowerCase();
+  if(u==="g") return qty;
+  if(u==="kg") return qty*1000;
+  if(u==="ml") return qty;
+  if(u==="l") return qty*1000;
+  if(u==="scoop") return qty*(food.unitG||30);
+  if(u==="cup") return qty*240;
+  if(u==="tbsp") return qty*15;
+  if(u==="tsp") return qty*5;
+  if(u==="glass") return qty*250;
+  if(u==="bowl") return qty*300;
+  return qty*(food.unitG||100);
+}
+function parseCustomMeal(text){
+  const lower=text.toLowerCase();
+  const breakdown=[];
+  const matched=new Set();
+  for(const food of NUTRITION_DB){
+    for(const key of food.keys){
+      const idx=lower.indexOf(key);
+      if(idx!==-1&&!matched.has(food.name)){
+        matched.add(food.name);
+        const{qty,unit}=extractQty(lower,idx);
+        const grams=unitToGrams(qty,unit,food);
+        const protein=Math.round((food.p*grams)/100);
+        const calories=Math.round((food.c*grams)/100);
+        breakdown.push({item:`${food.name} (~${Math.round(grams)}g)`,protein,calories});
+        break;
+      }
+    }
+  }
+  if(breakdown.length===0) throw new Error("No foods recognised. Try: '40g oats, 440ml milk, 1 scoop whey'");
+  return{protein:breakdown.reduce((s,i)=>s+i.protein,0),calories:breakdown.reduce((s,i)=>s+i.calories,0),breakdown};
+}
+
+// --- State ---
+let selected={}, customMacros={}, expandedId="morning", loggingCustom=null;
+
+function loadState(){
+  try{
+    const today=new Date().toDateString();
+    const savedDate=localStorage.getItem("dp_date");
+    if(savedDate&&savedDate!==today){
+      localStorage.removeItem("dp_selected");
+      localStorage.removeItem("dp_custom");
+    }
+    localStorage.setItem("dp_date",today);
+    const s=localStorage.getItem("dp_selected");
+    const c=localStorage.getItem("dp_custom");
+    selected=s?JSON.parse(s):{};
+    customMacros=c?JSON.parse(c):{};
+  }catch(e){selected={};customMacros={};}
+}
+function saveState(){
+  try{
+    localStorage.setItem("dp_selected",JSON.stringify(selected));
+    localStorage.setItem("dp_custom",JSON.stringify(customMacros));
+  }catch(e){}
+}
+
+function getMacros(items){
+  return items.reduce((acc,id)=>{
+    const f=FOODS[id]; if(!f) return acc;
+    return{protein:acc.protein+f.protein,calories:acc.calories+f.calories};
+  },{protein:0,calories:0});
+}
+function getTotals(){
+  let p=0,c=0;
+  for(const[mealId,val] of Object.entries(selected)){
+    if(val==="__custom__"){
+      const cm=customMacros[mealId];
+      if(cm){p+=cm.protein;c+=cm.calories;}
+    } else {
+      const m=getMacros(val);
+      p+=m.protein; c+=m.calories;
+    }
+  }
+  return{protein:Math.round(p),calories:Math.round(c)};
+}
+
+// --- Render ---
+function render(){
+  const totals=getTotals();
+  updateHeader(totals);
+  renderMeals();
+  renderSummary(totals);
+}
+
+function updateHeader(totals){
+  const{protein,calories}=totals;
+  // rings
+  const kPct=Math.min(calories/CALORIE_TARGET,1);
+  const pPct=Math.min(protein/PROTEIN_TARGET,1);
+  document.getElementById("arc-kcal").setAttribute("stroke-dasharray",`${kPct*CIRC} ${CIRC}`);
+  document.getElementById("arc-kcal").setAttribute("stroke",calories>CALORIE_TARGET?"#ff4d4d":"#4f8fff");
+  document.getElementById("arc-prot").setAttribute("stroke-dasharray",`${pPct*CIRC} ${CIRC}`);
+  document.getElementById("val-kcal").textContent=calories;
+  document.getElementById("val-kcal").style.color=calories>CALORIE_TARGET?"#ff4d4d":"#4f8fff";
+  document.getElementById("val-prot").textContent=protein;
+  // status
+  let msg,color;
+  if(calories===0){msg="Start selecting your meals";color="#555";}
+  else if(calories>CALORIE_TARGET){msg="⚠️ Over calorie limit!";color="#ff4d4d";}
+  else if(protein>=PROTEIN_TARGET&&calories<=CALORIE_TARGET&&calories>=CALORIE_MIN){msg="✅ Perfect. Hit protein, in deficit.";color="#00ff88";}
+  else if(protein<PROTEIN_TARGET){msg=`Need ${PROTEIN_TARGET-protein}g more protein`;color="#ffd700";}
+  else if(calories<CALORIE_MIN){msg="Too low on calories";color="#ff9500";}
+  else{msg="Keep building your day";color="#aaa";}
+  const sb=document.getElementById("status-bar");
+  sb.style.borderColor=color+"33";
+  document.getElementById("status-msg").textContent=msg;
+  document.getElementById("status-msg").style.color=color;
+  document.getElementById("status-right").textContent=`${protein}g · ${calories} kcal`;
+}
+
+function renderMeals(){
+  const container=document.getElementById("meals");
+  container.innerHTML="";
+
+  MEALS.forEach(meal=>{
+    const isOpen=expandedId===meal.id;
+    const chosen=selected[meal.id];
+    const isCustom=chosen==="__custom__";
+    const cm=isCustom?customMacros[meal.id]:null;
+    const macros=chosen&&!isCustom?getMacros(chosen):null;
+    const displayMacros=isCustom?cm:macros;
+
+    const card=document.createElement("div");
+    card.className="meal-card"+(isOpen?" open":"")+(chosen?" chosen":"");
+
+    // Header
+    const hdr=document.createElement("div");
+    hdr.className="meal-header";
+    hdr.innerHTML=`
+      <div style="display:flex;align-items:center">
+        <span class="meal-icon">${meal.icon}</span>
+        <div>
+          <div class="meal-label${chosen?" active":""}">${meal.label}</div>
+          <div class="meal-time">${meal.time}</div>
+        </div>
+      </div>
+      <div class="meal-macros">
+        ${displayMacros
+          ? `${isCustom?'<span class="custom-tag">custom</span>':''}<span class="prot">${displayMacros.protein}g</span><span style="color:#444;margin:0 4px;font-size:11px">·</span><span class="kcal">${displayMacros.calories} kcal</span>`
+          : '<span class="not-set">not set</span>'}
+        <div class="meal-arrow">${isOpen?"▲":"▼"}</div>
+      </div>`;
+    hdr.onclick=()=>{expandedId=isOpen?null:meal.id; loggingCustom=null; render();};
+    card.appendChild(hdr);
+
+    if(isOpen){
+      const opts=document.createElement("div");
+      opts.className="meal-options";
+
+      // Preset options
+      meal.options.forEach(opt=>{
+        const m=getMacros(opt.items);
+        const isSel=!isCustom&&chosen&&JSON.stringify(chosen)===JSON.stringify(opt.items);
+        const div=document.createElement("div");
+        div.className="option"+(isSel?" selected":"");
+        div.innerHTML=`
+          <div style="flex:1;margin-right:12px">
+            <div class="option-name">${opt.name}</div>
+            <div class="option-tags">${opt.items.map(id=>`<span class="option-tag">${FOODS[id]?.name}</span>`).join("")}</div>
+          </div>
+          <div class="option-nums">
+            <div class="option-prot">${m.protein}g</div>
+            <div class="option-kcal">${m.calories} kcal</div>
+          </div>`;
+        div.onclick=()=>{
+          loggingCustom=null;
+          if(isSel) delete selected[meal.id];
+          else selected[meal.id]=opt.items;
+          saveState(); render();
+        };
+        opts.appendChild(div);
+      });
+
+      // Custom log
+      if(loggingCustom===meal.id){
+        opts.appendChild(buildCustomForm(meal.id));
+      } else {
+        const cbtn=document.createElement("div");
+        cbtn.className="custom-btn"+(isCustom?" logged":"");
+        const loggedLabel=isCustom?(customMacros[meal.id]?.label||"Custom logged"):"Log what I actually ate";
+        cbtn.innerHTML=`
+          <div>
+            <div class="custom-btn-label">✏️ ${loggedLabel}</div>
+            ${!isCustom?'<div class="custom-btn-hint">Type it out — macros calculated locally</div>':""}
+          </div>
+          ${isCustom&&cm?`<div class="option-nums"><div class="option-prot">${cm.protein}g</div><div class="option-kcal">${cm.calories} kcal</div></div>`:""}`;
+        cbtn.onclick=()=>{loggingCustom=meal.id; render();};
+        opts.appendChild(cbtn);
+      }
+
+      // Skip
+      const skip=document.createElement("div");
+      skip.className="skip-btn";
+      skip.textContent="Skip this meal";
+      skip.onclick=()=>{loggingCustom=null;delete selected[meal.id];saveState();render();};
+      opts.appendChild(skip);
+
+      card.appendChild(opts);
+    }
+
+    container.appendChild(card);
+  });
+
+  // Summary + reminders
+  const sumDiv=document.createElement("div");
+  sumDiv.id="summary";
+  const totals=getTotals();
+  const remaining=Math.max(0,CALORIE_TARGET-totals.calories);
+  const deficit=MAINTENANCE-totals.calories;
+  const cells=[
+    {label:"Protein",val:`${totals.protein}g`,sub:`Target: ${PROTEIN_TARGET}g`,color:"#00e5a0",ok:totals.protein>=PROTEIN_TARGET},
+    {label:"Calories",val:totals.calories,sub:`Target: ${CALORIE_TARGET}`,color:"#4f8fff",ok:totals.calories<=CALORIE_TARGET&&totals.calories>=CALORIE_MIN},
+    {label:"Remaining Cal",val:remaining,sub:"calories left",color:"#ffd700",ok:true},
+    {label:"Deficit",val:`${deficit} kcal`,sub:"from maintenance",color:"#ff9500",ok:true},
+  ];
+  sumDiv.innerHTML=`
+    <div class="summary-title">Day Summary</div>
+    <div class="summary-grid">
+      ${cells.map(c=>`
+        <div class="summary-cell">
+          <div class="summary-cell-label">${c.label}</div>
+          <div class="summary-cell-val" style="color:${c.ok?c.color:"#ff4d4d"}">${c.val}</div>
+          <div class="summary-cell-sub">${c.sub}</div>
+        </div>`).join("")}
+    </div>
+    <button id="reset-btn">Reset Day</button>`;
+  container.appendChild(sumDiv);
+  document.getElementById("reset-btn").onclick=()=>{
+    selected={};customMacros={};loggingCustom=null;saveState();render();
+  };
+
+  const rem=document.createElement("div");
+  rem.id="reminders";
+  rem.innerHTML=`<div class="rem-title">Reminders</div>
+    🥛 Switch to cow milk — saves ~120 kcal vs buffalo<br>
+    🥚 Boil eggs only, eat mornings, pair with milk/curd<br>
+    🥜 Max 1 tbsp PB on cut — mostly fat<br>
+    💧 3L+ water daily<br>
+    ⚡ Creatine 5g with any meal — not counted here`;
+  container.appendChild(rem);
+}
+
+function buildCustomForm(mealId){
+  const wrap=document.createElement("div");
+  wrap.className="custom-form";
+  // Tab state
+  let activeTab = 'text';
+
+  wrap.innerHTML=`
+    <div class="custom-form-title">✏️ Log what you actually ate</div>
+    <div class="custom-tabs">
+      <button class="custom-tab active" id="tab-text">Describe Food</button>
+      <button class="custom-tab" id="tab-manual">Enter Manually</button>
+    </div>
+
+    <div id="panel-text">
+      <textarea id="custom-input" placeholder="e.g. 40g oats, 440ml milk, one scoop whey"></textarea>
+      <div id="custom-error" style="display:none" class="custom-error"></div>
+      <div id="custom-result" style="display:none" class="custom-result">
+        <div class="custom-result-top">
+          <div><span class="custom-result-prot" id="res-prot">0</span><span class="custom-result-unit">protein</span></div>
+          <div><span class="custom-result-kcal" id="res-kcal">0</span><span class="custom-result-unit">kcal</span></div>
+        </div>
+        <div id="res-breakdown"></div>
+      </div>
+      <div class="custom-btns">
+        <button class="btn-analyse" id="btn-analyse">Analyse</button>
+        <button class="btn-cancel" id="btn-cancel-text">Cancel</button>
+      </div>
+    </div>
+
+    <div id="panel-manual" style="display:none">
+      <div class="manual-label">What did you eat? (for your reference)</div>
+      <input id="manual-name" type="text" placeholder="e.g. Dadi ke haath ka khaana" class="manual-input"/>
+      <div class="manual-row">
+        <div class="manual-field">
+          <div class="manual-label">Protein (g)</div>
+          <input id="manual-protein" type="number" min="0" max="200" placeholder="0" class="manual-input"/>
+        </div>
+        <div class="manual-field">
+          <div class="manual-label">Calories (kcal)</div>
+          <input id="manual-calories" type="number" min="0" max="5000" placeholder="0" class="manual-input"/>
+        </div>
+      </div>
+      <div class="custom-btns" style="margin-top:10px">
+        <button class="btn-save" id="btn-manual-save">✓ Save This</button>
+        <button class="btn-cancel" id="btn-cancel-manual">Cancel</button>
+      </div>
+    </div>`;
+
+  // Tab switching
+  wrap.querySelector("#tab-text").onclick=()=>{
+    activeTab='text';
+    wrap.querySelector("#tab-text").classList.add("active");
+    wrap.querySelector("#tab-manual").classList.remove("active");
+    wrap.querySelector("#panel-text").style.display="block";
+    wrap.querySelector("#panel-manual").style.display="none";
+  };
+  wrap.querySelector("#tab-manual").onclick=()=>{
+    activeTab='manual';
+    wrap.querySelector("#tab-manual").classList.add("active");
+    wrap.querySelector("#tab-text").classList.remove("active");
+    wrap.querySelector("#panel-text").style.display="none";
+    wrap.querySelector("#panel-manual").style.display="block";
+  };
+
+  let parsed=null;
+
+  wrap.querySelector("#btn-analyse").onclick=()=>{
+    const text=wrap.querySelector("#custom-input").value;
+    if(!text.trim()) return;
+    const errDiv=wrap.querySelector("#custom-error");
+    const resDiv=wrap.querySelector("#custom-result");
+    errDiv.style.display="none";
+    resDiv.style.display="none";
+    try{
+      parsed=parseCustomMeal(text);
+      wrap.querySelector("#res-prot").textContent=parsed.protein+"g";
+      wrap.querySelector("#res-kcal").textContent=parsed.calories;
+      wrap.querySelector("#res-breakdown").innerHTML=parsed.breakdown.map(b=>
+        `<div class="breakdown-row"><span class="breakdown-name">${b.item}</span><span class="breakdown-nums">${b.protein}g · ${b.calories} kcal</span></div>`
+      ).join("");
+      resDiv.style.display="block";
+      const ab=wrap.querySelector("#btn-analyse");
+      ab.textContent="✓ Save This";
+      ab.className="btn-save";
+      ab.onclick=()=>{
+        customMacros[mealId]={protein:parsed.protein,calories:parsed.calories,label:text.slice(0,60)};
+        selected[mealId]="__custom__";
+        loggingCustom=null;
+        saveState(); render();
+      };
+    }catch(e){
+      errDiv.textContent=e.message;
+      errDiv.style.display="block";
+    }
+  };
+
+  // Manual save
+  wrap.querySelector("#btn-manual-save").onclick=()=>{
+    const name=wrap.querySelector("#manual-name").value.trim()||"Manual entry";
+    const protein=parseFloat(wrap.querySelector("#manual-protein").value)||0;
+    const calories=parseFloat(wrap.querySelector("#manual-calories").value)||0;
+    if(protein===0&&calories===0){
+      alert("Enter at least protein or calories");
+      return;
+    }
+    customMacros[mealId]={protein,calories,label:name.slice(0,60)};
+    selected[mealId]="__custom__";
+    loggingCustom=null;
+    saveState(); render();
+  };
+
+  wrap.querySelector("#btn-cancel-text").onclick=()=>{loggingCustom=null;render();};
+  wrap.querySelector("#btn-cancel-manual").onclick=()=>{loggingCustom=null;render();};
+  return wrap;
+}
+
+function renderSummary(){}
+
+// --- Init ---
+loadState();
+render();
+</script>
+</body>
+</html>
