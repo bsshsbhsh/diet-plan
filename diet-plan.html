@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Diet Plan"/>
+<title>Diet Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{background:#0a0a0f;color:#e0e0e0;font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:80px;}
+  button{font-family:'DM Sans',sans-serif;border:none;cursor:pointer;}
+  textarea{font-family:'DM Sans',sans-serif;}
+
+  #header{background:linear-gradient(135deg,#0d0d1a,#12122a);border-bottom:1px solid #1e1e3a;padding:20px 16px 16px;position:sticky;top:0;z-index:100;}
+  .header-inner{max-width:480px;margin:0 auto;}
+  .header-top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .header-title{font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+  .header-sub{font-size:11px;color:#4a4a8a;text-transform:uppercase;letter-spacing:3px;margin-bottom:4px;}
+  .header-meta{font-size:11px;color:#555;margin-top:2px;}
+  .rings{display:flex;gap:16px;padding-top:4px;}
+  #status-bar{margin-top:12px;padding:8px 14px;background:#0f0f20;border-radius:8px;font-size:12px;font-weight:600;display:flex;justify-content:space-between;align-items:center;border:1px solid #333;}
+  #status-right{color:#444;font-weight:400;}
+
+  #meals{max-width:480px;margin:0 auto;padding:12px 16px;}
+  .meal-card{margin-bottom:10px;border-radius:14px;overflow:hidden;border:1px solid #161625;background:#0c0c18;transition:border-color 0.2s;}
+  .meal-card.open{background:#0f0f1e;border-color:#2a2a4a;}
+  .meal-card.chosen{border-color:#2a3a5a;}
+  .meal-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+  .meal-icon{font-size:22px;margin-right:12px;}
+  .meal-label{font-size:15px;font-weight:700;color:#888;}
+  .meal-label.active{color:#e0e0ff;}
+  .meal-time{font-size:11px;color:#3a3a5a;margin-top:1px;}
+  .meal-macros{text-align:right;}
+  .meal-macros .prot{font-size:13px;color:#00e5a0;font-weight:700;}
+  .meal-macros .kcal{font-size:12px;color:#4f8fff;}
+  .meal-macros .custom-tag{font-size:10px;color:#6060a0;margin-right:4px;}
+  .meal-macros .not-set{font-size:11px;color:#333;}
+  .meal-arrow{font-size:14px;color:#333;margin-top:2px;}
+
+  .meal-options{padding:0 12px 14px;display:flex;flex-direction:column;gap:8px;}
+  .option{padding:12px 14px;border-radius:10px;background:#090916;border:1px solid #161630;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all 0.15s;}
+  .option.selected{background:#0e2240;border-color:#2a5a9a;}
+  .option-name{font-size:13px;font-weight:600;color:#bbb;}
+  .option.selected .option-name{color:#90c8ff;}
+  .option-tags{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;}
+  .option-tag{font-size:10px;background:#0f0f22;border:1px solid #1e1e35;border-radius:4px;padding:2px 6px;color:#555;}
+  .option-nums{text-align:right;min-width:70px;}
+  .option-prot{font-size:15px;font-weight:800;color:#00e5a0;font-family:'Bebas Neue',cursive;letter-spacing:0.5px;}
+  .option-kcal{font-size:11px;color:#4f8fff;margin-top:1px;}
+
+  .custom-btn{padding:11px 14px;border-radius:10px;background:#08080f;border:1px dashed #2a2a50;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+  .custom-btn.logged{background:#0e1a2e;border:1px solid #3a5a8a;}
+  .custom-btn-label{font-size:13px;font-weight:600;color:#4a4a80;}
+  .custom-btn.logged .custom-btn-label{color:#7090d0;}
+  .custom-btn-hint{font-size:11px;color:#2a2a50;margin-top:2px;}
+
+  .custom-form{padding:14px;border-radius:10px;background:#0a0a1a;border:1px solid #2a2a50;display:flex;flex-direction:column;gap:10px;}
+  .custom-form-title{font-size:12px;color:#6060a0;font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+  .custom-form textarea{background:#06060f;border:1px solid #1e1e35;border-radius:8px;color:#ccc;font-size:13px;padding:10px 12px;resize:none;min-height:70px;outline:none;line-height:1.6;width:100%;}
+  .custom-error{font-size:11px;color:#ff6060;padding:6px 10px;background:#1a0a0a;border-radius:6px;}
+  .custom-result{background:#060f14;border:1px solid #1a3a2a;border-radius:8px;padding:12px 14px;}
+  .custom-result-top{display:flex;justify-content:space-between;margin-bottom:10px;}
+  .custom-result-prot{font-size:20px;font-weight:800;color:#00e5a0;font-family:'Bebas Neue',cursive;}
+  .custom-result-kcal{font-size:20px;font-weight:800;color:#4f8fff;font-family:'Bebas Neue',cursive;}
+  .custom-result-unit{font-size:11px;color:#555;margin-left:4px;}
+  .breakdown-row{display:flex;justify-content:space-between;font-size:11px;color:#555;margin-top:3px;}
+  .breakdown-name{color:#444;}
+  .breakdown-nums{color:#336;}
+  .custom-btns{display:flex;gap:8px;}
+  .btn-analyse{flex:1;padding:10px;border-radius:8px;background:#0e1e3a;border:1px solid #2a5a9a;color:#4f8fff;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+  .btn-save{flex:1;padding:10px;border-radius:8px;background:#0e2a1e;border:1px solid #2a8a5a;color:#00e5a0;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+  .btn-cancel{padding:10px 16px;border-radius:8px;background:transparent;border:1px solid #1e1e30;color:#333;font-size:12px;}
+
+  .skip-btn{padding:8px 14px;border-radius:8px;background:transparent;border:1px dashed #161630;cursor:pointer;text-align:center;font-size:11px;color:#2a2a40;}
+
+  #summary{margin-top:16px;padding:20px;border-radius:16px;background:linear-gradient(135deg,#0c0c20,#101030);border:1px solid #1e1e40;}
+  .summary-title{font-size:11px;letter-spacing:3px;color:#333;text-transform:uppercase;margin-bottom:16px;}
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .summary-cell{padding:14px;background:#090914;border-radius:10px;border:1px solid #161628;}
+  .summary-cell-label{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;}
+  .summary-cell-val{font-size:24px;font-weight:800;font-family:'Bebas Neue',cursive;letter-spacing:1px;}
+  .summary-cell-sub{font-size:10px;color:#333;margin-top:2px;}
+  #reset-btn{margin-top:16px;width:100%;padding:12px;background:transparent;border:1px solid #1e1e30;border-radius:10px;color:#444;font-size:12px;letter-spacing:2px;text-transform:uppercase;}
+
+  #reminders{margin-top:12px;padding:14px 16px;border-radius:12px;background:#080814;border:1px solid #161625;font-size:11px;color:#444;line-height:1.8;}
+  #reminders .rem-title{color:#333;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:1.5px;font-size:10px;}
+
+  /* Radial ring */
+  .ring-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .ring-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;}
+  .ring-val{font-size:17px;font-weight:800;font-family:'Bebas Neue',cursive;}
+  .ring-unit{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:1px;}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <div class="header-sub">Cut Phase</div>
+        <div class="header-title">Daily Diet Planner</div>
+        <div class="header-meta">82kg · 178cm · −400/500 cal deficit</div>
+      </div>
+      <div class="rings">
+        <div class="ring-wrap">
+          <svg width="70" height="70" id="ring-kcal" style="transform:rotate(-90deg)">
+            <circle cx="35" cy="35" r="29" fill="none" stroke="#1a1a2e" stroke-width="8"/>
+            <circle cx="35" cy="35" r="29" fill="none" stroke="#4f8fff" stroke-width="8" stroke-dasharray="0 182.2" stroke-linecap="round" id="arc-kcal" style="transition:stroke-dasharray 0.5s"/>
+          </svg>
+          <div style="margin-top:-43px;margin-bottom:35px;text-align:center;line-height:1.2">
+            <div class="ring-val" id="val-kcal" style="color:#4f8fff">0</div>
+            <div class="ring-unit">/ 2200</div>
+          </div>
+          <div class="ring-label">Kcal</div>
+        </div>
+        <div class="ring-wrap">
+          <svg width="70" height="70" style="transform:rotate(-90deg)">
+            <circle cx="35" cy="35" r="29" fill="none" stroke="#1a1a2e" stroke-width="8"/>
+            <circle cx="35" cy="35" r="29" fill="none" stroke="#00e5a0" stroke-width="8" stroke-dasharray="0 182.2" stroke-linecap="round" id="arc-prot" style="transition:stroke-dasharray 0.5s"/>
+          </svg>
+          <div style="margin-top:-43px;margin-bottom:35px;text-align:center;line-height:1.2">
+            <div class="ring-val" id="val-prot" style="color:#00e5a0">0</div>
+            <div class="ring-unit">/ 160g</div>
+          </div>
+          <div class="ring-label">Protein</div>
+        </div>
+      </div>
+    </div>
+    <div id="status-bar">
+      <span id="status-msg">Start selecting your meals</span>
+      <span id="status-right">0g · 0 kcal</span>
+    </div>
+  </div>
+</div>
+
+<div id="meals"></div>
+
+<script>
+const FOODS = {
+  whey:{name:"Whey Protein (1 scoop)",protein:20,calories:95},
+  milkCow250:{name:"Cow Milk (250ml)",protein:8,calories:120},
+  milkCow500:{name:"Cow Milk (500ml)",protein:16,calories:240},
+  milkCow750:{name:"Cow Milk (750ml)",protein:24,calories:360},
+  soychunks:{name:"Soy Chunks 100g (dry)",protein:52,calories:345},
+  paneerCow100:{name:"Cow Milk Paneer (100g)",protein:18,calories:230},
+  paneerCow150:{name:"Cow Milk Paneer (150g)",protein:27,calories:345},
+  oats80:{name:"Rolled Oats (80g)",protein:11,calories:300},
+  oats60:{name:"Rolled Oats (60g)",protein:8,calories:225},
+  eggs2whole:{name:"Boiled Eggs x2 (whole)",protein:12,calories:140},
+  eggs3whole:{name:"Boiled Eggs x3 (whole)",protein:18,calories:210},
+  eggswhites4:{name:"Egg Whites x4",protein:14,calories:68},
+  peanutbutter:{name:"Peanut Butter (1 tbsp)",protein:4,calories:94},
+  banana:{name:"Banana (1 medium)",protein:1,calories:89},
+  nuts:{name:"Almonds x5 + Walnut x1 + Pumpkin Seeds 1tbsp",protein:5,calories:90},
+  roti1:{name:"Roti x1",protein:3,calories:100},
+  roti2:{name:"Roti x2",protein:6,calories:200},
+  roti3:{name:"Roti x3",protein:9,calories:300},
+  dal:{name:"Dal (1 cup cooked)",protein:12,calories:180},
+  sabji:{name:"Sabji (1 cup)",protein:3,calories:120},
+  rajma:{name:"Rajma / Chhole (1 cup)",protein:15,calories:220},
+  rice150:{name:"Cooked Rice (150g)",protein:4,calories:195},
+};
+
+const MEALS = [
+  {id:"morning",label:"Morning",icon:"🌅",time:"7–9 AM",options:[
+    {name:"Oats + Milk + Whey",items:["oats80","milkCow250","whey"]},
+    {name:"Oats + Milk + Whey + Banana",items:["oats80","milkCow250","whey","banana"]},
+    {name:"Oats + Milk",items:["oats80","milkCow250"]},
+  ]},
+  {id:"midmorning",label:"Mid Morning",icon:"☀️",time:"10–11 AM",options:[
+    {name:"2 Boiled Eggs + PB",items:["eggs2whole","peanutbutter"]},
+    {name:"3 Boiled Eggs",items:["eggs3whole"]},
+    {name:"4 Egg Whites + PB",items:["eggswhites4","peanutbutter"]},
+    {name:"Whey Shake",items:["whey","milkCow250"]},
+  ]},
+  {id:"lunch",label:"Lunch",icon:"🍱",time:"1–2 PM",options:[
+    {name:"Soy Chunks + 2 Roti + Sabji",items:["soychunks","roti2","sabji"]},
+    {name:"Soy Chunks + Dal + 2 Roti",items:["soychunks","dal","roti2"]},
+    {name:"Paneer + Dal + 2 Roti",items:["paneerCow100","dal","roti2"]},
+    {name:"Paneer + Sabji + 3 Roti",items:["paneerCow150","sabji","roti3"]},
+    {name:"Rajma Rice",items:["rajma","rice150"]},
+  ]},
+  {id:"preworkout",label:"Pre Workout",icon:"💪",time:"4–5 PM",options:[
+    {name:"Whey + Banana",items:["whey","banana"]},
+    {name:"Whey + Milk",items:["whey","milkCow250"]},
+    {name:"Banana only",items:["banana"]},
+  ]},
+  {id:"postworkout",label:"Post Workout",icon:"🔥",time:"6–7 PM",options:[
+    {name:"Whey + Milk",items:["whey","milkCow250"]},
+    {name:"Whey in Water",items:["whey"]},
+    {name:"Whey + Milk + Banana",items:["whey","milkCow250","banana"]},
+  ]},
+  {id:"dinner",label:"Dinner",icon:"🌙",time:"8–9 PM",options:[
+    {name:"Paneer + Dal + 1 Roti",items:["paneerCow100","dal","roti1"]},
+    {name:"Paneer + Sabji + 2 Roti",items:["paneerCow150","sabji","roti2"]},
+    {name:"Soy Chunks + Sabji + 1 Roti",items:["soychunks","sabji","roti1"]},
+    {name:"Dal + 2 Roti",items:["dal","roti2"]},
+  ]},
+  {id:"beforebed",label:"Before Bed",icon:"🌛",time:"10–11 PM",options:[
+    {name:"Milk + Nuts",items:["milkCow250","nuts"]},
+    {name:"Paneer small + Nuts",items:["paneerCow100","nuts"]},
+    {name:"Milk only",items:["milkCow250"]},
+  ]},
+];
+
+const CALORIE_TARGET=2200, PROTEIN_TARGET=160, CALORIE_MIN=1900, MAINTENANCE=2650;
+const CIRC=2*Math.PI*29;
+
+// --- Nutrition parser ---
+const NUTRITION_DB=[
+  {keys:["oat"],p:13.5,c:375,name:"Oats"},
+  {keys:["cow milk","milk"],p:3.2,c:61,name:"Cow Milk"},
+  {keys:["buffalo milk"],p:3.8,c:97,name:"Buffalo Milk"},
+  {keys:["whey","scoop"],p:80,c:380,name:"Whey Protein",unitG:30},
+  {keys:["paneer"],p:18,c:265,name:"Paneer"},
+  {keys:["soy chunk","soya chunk"],p:52,c:345,name:"Soy Chunks"},
+  {keys:["egg white"],p:11,c:52,name:"Egg Whites",unitG:33},
+  {keys:["whole egg","egg"],p:13,c:155,name:"Egg",unitG:55},
+  {keys:["roti","chapati","chapatti"],p:3.1,c:104,name:"Roti",unitG:35},
+  {keys:["rice"],p:2.7,c:130,name:"Cooked Rice"},
+  {keys:["dal","daal","lentil"],p:9,c:116,name:"Dal"},
+  {keys:["rajma","kidney bean"],p:8.7,c:127,name:"Rajma"},
+  {keys:["chhole","chole","chickpea"],p:8.9,c:164,name:"Chhole"},
+  {keys:["sabji","sabzi"],p:2,c:80,name:"Sabji"},
+  {keys:["banana"],p:1.1,c:89,name:"Banana",unitG:120},
+  {keys:["peanut butter"],p:25,c:588,name:"Peanut Butter",unitG:15},
+  {keys:["almond"],p:21,c:579,name:"Almonds",unitG:5},
+  {keys:["walnut"],p:15,c:654,name:"Walnut",unitG:7},
+  {keys:["pumpkin seed"],p:19,c:446,name:"Pumpkin Seeds"},
+];
+const NUM_WORDS={one:1,two:2,three:3,four:4,five:5,six:6,half:0.5,a:1,an:1};
+
+function extractQty(text,idx){
+  const before=text.slice(Math.max(0,idx-35),idx);
+  const after=text.slice(idx,idx+40);
+  let m;
+  m=before.match(/(\d+\.?\d*)\s*(g|ml|l|kg|scoop|cup|tbsp|tsp|glass|bowl)s?\s*$/i);
+  if(m) return{qty:parseFloat(m[1]),unit:m[2].toLowerCase()};
+  m=before.match(/\b(one|two|three|four|five|six|half|an?)\s+(scoop|cup|tbsp|glass|bowl)?\s*$/i);
+  if(m) return{qty:NUM_WORDS[m[1].toLowerCase()]||1,unit:m[2]?m[2].toLowerCase():"count"};
+  m=before.match(/(\d+\.?\d*)\s*$/);
+  if(m) return{qty:parseFloat(m[1]),unit:"count"};
+  m=after.match(/^[a-z\s]*x?\s*(\d+)/i);
+  if(m) return{qty:parseFloat(m[1]),unit:"count"};
+  return{qty:1,unit:"count"};
+}
+function unitToGrams(qty,unit,food){
+  const u=(unit||"").toLowerCase();
+  if(u==="g") return qty;
+  if(u==="kg") return qty*1000;
+  if(u==="ml") return qty;
+  if(u==="l") return qty*1000;
+  if(u==="scoop") return qty*(food.unitG||30);
+  if(u==="cup") return qty*240;
+  if(u==="tbsp") return qty*15;
+  if(u==="tsp") return qty*5;
+  if(u==="glass") return qty*250;
+  if(u==="bowl") return qty*300;
+  return qty*(food.unitG||100);
+}
+function parseCustomMeal(text){
+  const lower=text.toLowerCase();
+  const breakdown=[];
+  const matched=new Set();
+  for(const food of NUTRITION_DB){
+    for(const key of food.keys){
+      const idx=lower.indexOf(key);
+      if(idx!==-1&&!matched.has(food.name)){
+        matched.add(food.name);
+        const{qty,unit}=extractQty(lower,idx);
+        const grams=unitToGrams(qty,unit,food);
+        const protein=Math.round((food.p*grams)/100);
+        const calories=Math.round((food.c*grams)/100);
+        breakdown.push({item:`${food.name} (~${Math.round(grams)}g)`,protein,calories});
+        break;
+      }
+    }
+  }
+  if(breakdown.length===0) throw new Error("No foods recognised. Try: '40g oats, 440ml milk, 1 scoop whey'");
+  return{protein:breakdown.reduce((s,i)=>s+i.protein,0),calories:breakdown.reduce((s,i)=>s+i.calories,0),breakdown};
+}
+
+// --- State ---
+let selected={}, customMacros={}, expandedId="morning", loggingCustom=null;
+
+function loadState(){
+  try{
+    const today=new Date().toDateString();
+    const savedDate=localStorage.getItem("dp_date");
+    if(savedDate&&savedDate!==today){
+      localStorage.removeItem("dp_selected");
+      localStorage.removeItem("dp_custom");
+    }
+    localStorage.setItem("dp_date",today);
+    const s=localStorage.getItem("dp_selected");
+    const c=localStorage.getItem("dp_custom");
+    selected=s?JSON.parse(s):{};
+    customMacros=c?JSON.parse(c):{};
+  }catch(e){selected={};customMacros={};}
+}
+function saveState(){
+  try{
+    localStorage.setItem("dp_selected",JSON.stringify(selected));
+    localStorage.setItem("dp_custom",JSON.stringify(customMacros));
+  }catch(e){}
+}
+
+function getMacros(items){
+  return items.reduce((acc,id)=>{
+    const f=FOODS[id]; if(!f) return acc;
+    return{protein:acc.protein+f.protein,calories:acc.calories+f.calories};
+  },{protein:0,calories:0});
+}
+function getTotals(){
+  let p=0,c=0;
+  for(const[mealId,val] of Object.entries(selected)){
+    if(val==="__custom__"){
+      const cm=customMacros[mealId];
+      if(cm){p+=cm.protein;c+=cm.calories;}
+    } else {
+      const m=getMacros(val);
+      p+=m.protein; c+=m.calories;
+    }
+  }
+  return{protein:Math.round(p),calories:Math.round(c)};
+}
+
+// --- Render ---
+function render(){
+  const totals=getTotals();
+  updateHeader(totals);
+  renderMeals();
+  renderSummary(totals);
+}
+
+function updateHeader(totals){
+  const{protein,calories}=totals;
+  // rings
+  const kPct=Math.min(calories/CALORIE_TARGET,1);
+  const pPct=Math.min(protein/PROTEIN_TARGET,1);
+  document.getElementById("arc-kcal").setAttribute("stroke-dasharray",`${kPct*CIRC} ${CIRC}`);
+  document.getElementById("arc-kcal").setAttribute("stroke",calories>CALORIE_TARGET?"#ff4d4d":"#4f8fff");
+  document.getElementById("arc-prot").setAttribute("stroke-dasharray",`${pPct*CIRC} ${CIRC}`);
+  document.getElementById("val-kcal").textContent=calories;
+  document.getElementById("val-kcal").style.color=calories>CALORIE_TARGET?"#ff4d4d":"#4f8fff";
+  document.getElementById("val-prot").textContent=protein;
+  // status
+  let msg,color;
+  if(calories===0){msg="Start selecting your meals";color="#555";}
+  else if(calories>CALORIE_TARGET){msg="⚠️ Over calorie limit!";color="#ff4d4d";}
+  else if(protein>=PROTEIN_TARGET&&calories<=CALORIE_TARGET&&calories>=CALORIE_MIN){msg="✅ Perfect. Hit protein, in deficit.";color="#00ff88";}
+  else if(protein<PROTEIN_TARGET){msg=`Need ${PROTEIN_TARGET-protein}g more protein`;color="#ffd700";}
+  else if(calories<CALORIE_MIN){msg="Too low on calories";color="#ff9500";}
+  else{msg="Keep building your day";color="#aaa";}
+  const sb=document.getElementById("status-bar");
+  sb.style.borderColor=color+"33";
+  document.getElementById("status-msg").textContent=msg;
+  document.getElementById("status-msg").style.color=color;
+  document.getElementById("status-right").textContent=`${protein}g · ${calories} kcal`;
+}
+
+function renderMeals(){
+  const container=document.getElementById("meals");
+  container.innerHTML="";
+
+  MEALS.forEach(meal=>{
+    const isOpen=expandedId===meal.id;
+    const chosen=selected[meal.id];
+    const isCustom=chosen==="__custom__";
+    const cm=isCustom?customMacros[meal.id]:null;
+    const macros=chosen&&!isCustom?getMacros(chosen):null;
+    const displayMacros=isCustom?cm:macros;
+
+    const card=document.createElement("div");
+    card.className="meal-card"+(isOpen?" open":"")+(chosen?" chosen":"");
+
+    // Header
+    const hdr=document.createElement("div");
+    hdr.className="meal-header";
+    hdr.innerHTML=`
+      <div style="display:flex;align-items:center">
+        <span class="meal-icon">${meal.icon}</span>
+        <div>
+          <div class="meal-label${chosen?" active":""}">${meal.label}</div>
+          <div class="meal-time">${meal.time}</div>
+        </div>
+      </div>
+      <div class="meal-macros">
+        ${displayMacros
+          ? `${isCustom?'<span class="custom-tag">custom</span>':''}<span class="prot">${displayMacros.protein}g</span><span style="color:#444;margin:0 4px;font-size:11px">·</span><span class="kcal">${displayMacros.calories} kcal</span>`
+          : '<span class="not-set">not set</span>'}
+        <div class="meal-arrow">${isOpen?"▲":"▼"}</div>
+      </div>`;
+    hdr.onclick=()=>{expandedId=isOpen?null:meal.id; loggingCustom=null; render();};
+    card.appendChild(hdr);
+
+    if(isOpen){
+      const opts=document.createElement("div");
+      opts.className="meal-options";
+
+      // Preset options
+      meal.options.forEach(opt=>{
+        const m=getMacros(opt.items);
+        const isSel=!isCustom&&chosen&&JSON.stringify(chosen)===JSON.stringify(opt.items);
+        const div=document.createElement("div");
+        div.className="option"+(isSel?" selected":"");
+        div.innerHTML=`
+          <div style="flex:1;margin-right:12px">
+            <div class="option-name">${opt.name}</div>
+            <div class="option-tags">${opt.items.map(id=>`<span class="option-tag">${FOODS[id]?.name}</span>`).join("")}</div>
+          </div>
+          <div class="option-nums">
+            <div class="option-prot">${m.protein}g</div>
+            <div class="option-kcal">${m.calories} kcal</div>
+          </div>`;
+        div.onclick=()=>{
+          loggingCustom=null;
+          if(isSel) delete selected[meal.id];
+          else selected[meal.id]=opt.items;
+          saveState(); render();
+        };
+        opts.appendChild(div);
+      });
+
+      // Custom log
+      if(loggingCustom===meal.id){
+        opts.appendChild(buildCustomForm(meal.id));
+      } else {
+        const cbtn=document.createElement("div");
+        cbtn.className="custom-btn"+(isCustom?" logged":"");
+        const loggedLabel=isCustom?(customMacros[meal.id]?.label||"Custom logged"):"Log what I actually ate";
+        cbtn.innerHTML=`
+          <div>
+            <div class="custom-btn-label">✏️ ${loggedLabel}</div>
+            ${!isCustom?'<div class="custom-btn-hint">Type it out — macros calculated locally</div>':""}
+          </div>
+          ${isCustom&&cm?`<div class="option-nums"><div class="option-prot">${cm.protein}g</div><div class="option-kcal">${cm.calories} kcal</div></div>`:""}`;
+        cbtn.onclick=()=>{loggingCustom=meal.id; render();};
+        opts.appendChild(cbtn);
+      }
+
+      // Skip
+      const skip=document.createElement("div");
+      skip.className="skip-btn";
+      skip.textContent="Skip this meal";
+      skip.onclick=()=>{loggingCustom=null;delete selected[meal.id];saveState();render();};
+      opts.appendChild(skip);
+
+      card.appendChild(opts);
+    }
+
+    container.appendChild(card);
+  });
+
+  // Summary + reminders
+  const sumDiv=document.createElement("div");
+  sumDiv.id="summary";
+  const totals=getTotals();
+  const remaining=Math.max(0,CALORIE_TARGET-totals.calories);
+  const deficit=MAINTENANCE-totals.calories;
+  const cells=[
+    {label:"Protein",val:`${totals.protein}g`,sub:`Target: ${PROTEIN_TARGET}g`,color:"#00e5a0",ok:totals.protein>=PROTEIN_TARGET},
+    {label:"Calories",val:totals.calories,sub:`Target: ${CALORIE_TARGET}`,color:"#4f8fff",ok:totals.calories<=CALORIE_TARGET&&totals.calories>=CALORIE_MIN},
+    {label:"Remaining Cal",val:remaining,sub:"calories left",color:"#ffd700",ok:true},
+    {label:"Deficit",val:`${deficit} kcal`,sub:"from maintenance",color:"#ff9500",ok:true},
+  ];
+  sumDiv.innerHTML=`
+    <div class="summary-title">Day Summary</div>
+    <div class="summary-grid">
+      ${cells.map(c=>`
+        <div class="summary-cell">
+          <div class="summary-cell-label">${c.label}</div>
+          <div class="summary-cell-val" style="color:${c.ok?c.color:"#ff4d4d"}">${c.val}</div>
+          <div class="summary-cell-sub">${c.sub}</div>
+        </div>`).join("")}
+    </div>
+    <button id="reset-btn">Reset Day</button>`;
+  container.appendChild(sumDiv);
+  document.getElementById("reset-btn").onclick=()=>{
+    selected={};customMacros={};loggingCustom=null;saveState();render();
+  };
+
+  const rem=document.createElement("div");
+  rem.id="reminders";
+  rem.innerHTML=`<div class="rem-title">Reminders</div>
+    🥛 Switch to cow milk — saves ~120 kcal vs buffalo<br>
+    🥚 Boil eggs only, eat mornings, pair with milk/curd<br>
+    🥜 Max 1 tbsp PB on cut — mostly fat<br>
+    💧 3L+ water daily<br>
+    ⚡ Creatine 5g with any meal — not counted here`;
+  container.appendChild(rem);
+}
+
+function buildCustomForm(mealId){
+  const wrap=document.createElement("div");
+  wrap.className="custom-form";
+  wrap.innerHTML=`
+    <div class="custom-form-title">✏️ Log what you actually ate</div>
+    <textarea id="custom-input" placeholder="e.g. 40g oats, 440ml milk, one scoop whey"></textarea>
+    <div id="custom-error" style="display:none" class="custom-error"></div>
+    <div id="custom-result" style="display:none" class="custom-result">
+      <div class="custom-result-top">
+        <div><span class="custom-result-prot" id="res-prot">0</span><span class="custom-result-unit">protein</span></div>
+        <div><span class="custom-result-kcal" id="res-kcal">0</span><span class="custom-result-unit">kcal</span></div>
+      </div>
+      <div id="res-breakdown"></div>
+    </div>
+    <div class="custom-btns">
+      <button class="btn-analyse" id="btn-analyse">Analyse</button>
+      <button class="btn-cancel" id="btn-cancel">Cancel</button>
+    </div>`;
+
+  let parsed=null;
+
+  wrap.querySelector("#btn-analyse").onclick=()=>{
+    const text=wrap.querySelector("#custom-input").value;
+    if(!text.trim()) return;
+    const errDiv=wrap.querySelector("#custom-error");
+    const resDiv=wrap.querySelector("#custom-result");
+    errDiv.style.display="none";
+    resDiv.style.display="none";
+    try{
+      parsed=parseCustomMeal(text);
+      wrap.querySelector("#res-prot").textContent=parsed.protein+"g";
+      wrap.querySelector("#res-kcal").textContent=parsed.calories;
+      wrap.querySelector("#res-breakdown").innerHTML=parsed.breakdown.map(b=>
+        `<div class="breakdown-row"><span class="breakdown-name">${b.item}</span><span class="breakdown-nums">${b.protein}g · ${b.calories} kcal</span></div>`
+      ).join("");
+      resDiv.style.display="block";
+      // swap button
+      const ab=wrap.querySelector("#btn-analyse");
+      ab.textContent="✓ Save This";
+      ab.className="btn-save";
+      ab.onclick=()=>{
+        customMacros[mealId]={protein:parsed.protein,calories:parsed.calories,label:text.slice(0,60)};
+        selected[mealId]="__custom__";
+        loggingCustom=null;
+        saveState(); render();
+      };
+    }catch(e){
+      errDiv.textContent=e.message;
+      errDiv.style.display="block";
+    }
+  };
+
+  wrap.querySelector("#btn-cancel").onclick=()=>{loggingCustom=null;render();};
+  return wrap;
+}
+
+function renderSummary(){}
+
+// --- Init ---
+loadState();
+render();
+</script>
+</body>
+</html>
